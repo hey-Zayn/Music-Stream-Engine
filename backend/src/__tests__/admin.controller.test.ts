@@ -1,6 +1,7 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
+
 const clerk = require('@clerk/express');
-const { checkAdmin } = require('./admin.controller');
+const { checkAdmin } = require('../controllers/admin.controller');
 
 describe('admin.controller - checkAdmin', () => {
   let req: any, res: any, next: any;
@@ -8,8 +9,8 @@ describe('admin.controller - checkAdmin', () => {
   beforeEach(() => {
     vi.stubEnv('CLERK_SECRET_KEY', 'sk_test_51MzS2XSCXk1fP8BkJZ1t2y3u4v5w6x7y8z9a');
     vi.stubEnv('ADMIN_EMAIL', 'admin@example.com');
-    
-    // Monkey-patch the library directly
+
+    // Monkey-patch the Clerk library directly (required due to CommonJS module resolution)
     clerk.clerkClient.users.getUser = vi.fn();
 
     req = {
