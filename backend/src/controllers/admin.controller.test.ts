@@ -1,9 +1,13 @@
-// Mock dependencies
+process.env.CLERK_SECRET_KEY = 'sk_test_123';
+
+// Reset modules to ensure fresh require of the controller with our mock
+vi.resetModules();
+
 const mockGetUser = vi.fn();
-vi.mock('@clerk/express', () => ({
+vi.doMock('@clerk/express', () => ({
   clerkClient: {
     users: {
-      getUser: (...args) => mockGetUser(...args),
+      getUser: mockGetUser,
     },
   },
 }));

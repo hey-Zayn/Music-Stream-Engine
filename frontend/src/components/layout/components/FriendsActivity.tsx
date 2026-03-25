@@ -6,6 +6,8 @@ import { HeadphonesIcon, Music, Users } from "lucide-react";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+import type { User } from "@/types";
+
 const FriendsActivity = () => {
 	const { users, fetchUsers, onlineUsers, userActivities } = useChatStore();
 //   console.log('FriendsActivity - users:', users);
@@ -20,7 +22,7 @@ const FriendsActivity = () => {
 		if (user) fetchUsers();
 	}, [fetchUsers, user]);
 
-	const handleUserClick = (targetUser: any) => {
+	const handleUserClick = (targetUser: User) => {
 		setSelectedUser(targetUser);
 		navigate("/chat");
 	};
