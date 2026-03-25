@@ -35,18 +35,18 @@ interface MusicStore {
 
 export const useMusicStore = create<MusicStore>((set) => {
     const fetchWrapper = async (url: string, key: keyof MusicStore, errorMessage: string, isLoadingKey: keyof MusicStore = 'isLoading') => {
-        set({ [isLoadingKey]: true, error: null } as any);
+        set({ [isLoadingKey]: true, error: null } as unknown as Partial<MusicStore>);
         try {
             const response = await axiosInstance.get(url);
             const data = response.data.songs || response.data.albums || response.data.album || response.data;
-            set({ [key]: data } as any);
-        } catch (error) {
-            const e = error as any;
+            set({ [key]: data } as unknown as Partial<MusicStore>);
+        } catch (error: unknown) {
+            const e = error as { response?: { data?: { message?: string } }; message?: string };
             const message = e?.response?.data?.message || e?.message || errorMessage;
-            set({ error: message } as any);
+            set({ error: message } as unknown as Partial<MusicStore>);
             toast.error(message);
         } finally {
-            set({ [isLoadingKey]: false } as any);
+            set({ [isLoadingKey]: false } as unknown as Partial<MusicStore>);
         }
     };
 
@@ -86,8 +86,8 @@ export const useMusicStore = create<MusicStore>((set) => {
                     songs: state.songs.filter((song) => song._id !== id),
                 }));
                 toast.success("Song deleted successfully");
-            } catch (error) {
-                const e = error as any;
+            } catch (error: unknown) {
+                const e = error as { response?: { data?: { message?: string } } };
                 toast.error(e?.response?.data?.message || "Error deleting song");
             } finally {
                 set({ isLoading: false });
@@ -106,8 +106,8 @@ export const useMusicStore = create<MusicStore>((set) => {
                     ),
                 }));
                 toast.success("Album deleted successfully");
-            } catch (error) {
-                const e = error as any;
+            } catch (error: unknown) {
+                const e = error as { response?: { data?: { message?: string } } };
                 toast.error(e?.response?.data?.message || "Failed to delete album");
             } finally {
                 set({ isLoading: false });

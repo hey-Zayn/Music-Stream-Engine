@@ -4,6 +4,7 @@ import { useChatStore } from "@/store/useChatStore";
 import { useUser } from "@clerk/clerk-react";
 import { HeadphonesIcon, Music, Users } from "lucide-react";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const FriendsActivity = () => {
 	const { users, fetchUsers, onlineUsers, userActivities } = useChatStore();
@@ -12,10 +13,17 @@ const FriendsActivity = () => {
 //   console.log('FriendsActivity - onlineUsers:', onlineUsers);
   
 	const { user } = useUser();
+	const navigate = useNavigate();
+	const { setSelectedUser } = useChatStore();
 
 	useEffect(() => {
 		if (user) fetchUsers();
 	}, [fetchUsers, user]);
+
+	const handleUserClick = (targetUser: any) => {
+		setSelectedUser(targetUser);
+		navigate("/chat");
+	};
 
 	return (
 		<div className='h-full bg-zinc-900 rounded-lg flex flex-col'>
@@ -37,6 +45,7 @@ const FriendsActivity = () => {
 						return (
 							<div
 								key={user._id}
+								onClick={() => handleUserClick(user)}
 								className='cursor-pointer hover:bg-zinc-800/50 p-3 rounded-md transition-colors group'
 							>
 								<div className='flex items-start gap-3'>
@@ -87,7 +96,7 @@ const LoginPrompt = () => (
 	<div className='h-full flex flex-col items-center justify-center p-6 text-center space-y-4'>
 		<div className='relative'>
 			<div
-				className='absolute -inset-1 bg-gradient-to-r from-emerald-500 to-sky-500 rounded-full blur-lg
+				className='absolute -inset-1 bg-linear-to-r from-emerald-500 to-sky-500 rounded-full blur-lg
        opacity-75 animate-pulse'
 				aria-hidden='true'
 			/>

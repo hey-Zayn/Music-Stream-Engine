@@ -4,6 +4,9 @@ import { TiHome } from "react-icons/ti";
 import { IoChatbubbleEllipses } from "react-icons/io5";
 import { IoIosPeople } from "react-icons/io";
 import { useAuthStore } from '@/store/useAuthStore'
+import { useState } from 'react';
+import { Check, Link2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import {
     Tooltip,
@@ -13,13 +16,27 @@ import {
 
 import { cn } from "@/lib/utils"
 import SignInOAuth from '../../ui/SignInOAuth'
-import { Button, buttonVariants } from '../../ui/button'
+import { Button } from '../../ui/button'
+import { buttonVariants } from '../../ui/button-variants'
 import { Link } from 'react-router-dom';
 
 
 const TopHeader = () => {
     // const isAdmin = false;
     const { isAdmin } = useAuthStore()
+    const [isCopied, setIsCopied] = useState(false);
+
+    const handleInviteFriends = async () => {
+        try {
+            await navigator.clipboard.writeText(window.location.host);
+            setIsCopied(true);
+            toast.success("Link copied to clipboard!");
+            setTimeout(() => setIsCopied(false), 2000);
+        } catch (error) {
+            toast.error("Failed to copy link");
+        }
+    }
+
     return (
         <div className='w-full flex justify-between items-center px-4 pb-0 pt-2 sticky top-0 bg-black backdrop-blur-md z-10'>
             <div className='flex gap-2 items-center'>
@@ -49,8 +66,25 @@ const TopHeader = () => {
                     </Button> */}
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Button variant={"ghost"} className='rounded-full'>
-                                Invite Friends
+                            <Button 
+                                variant={isCopied ? "secondary" : "ghost"} 
+                                className={cn(
+                                    "rounded-full transition-all duration-300",
+                                    isCopied && "bg-emerald-500/20 text-emerald-400 border-emerald-500/50"
+                                )}
+                                onClick={handleInviteFriends}
+                            >
+                                {isCopied ? (
+                                    <>
+                                        <Check className="mr-2 h-4 w-4 animate-in zoom-in duration-300" />
+                                        Copied!
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link2 className="mr-2 h-4 w-4" />
+                                        Invite Friends
+                                    </>
+                                )}
                             </Button>
                         </TooltipTrigger>
                         <TooltipContent>

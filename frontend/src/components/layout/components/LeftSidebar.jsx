@@ -1,4 +1,4 @@
-import { buttonVariants } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button-variants'
 import { cn } from '@/lib/utils'
 import { SignedIn } from '@clerk/clerk-react'
 import { HomeIcon, MessageCircle } from 'lucide-react'
@@ -79,7 +79,7 @@ const LeftSidebar = () => {
                                                 <img
                                                     src={album.imageUrl}
                                                     alt='Playlist img'
-                                                    className='size-12 rounded-md flex-shrink-0 object-cover'
+                                                    className='size-12 rounded-md shrink-0 object-cover'
                                                 />
 
                                                 <div className='flex-1 min-w-0 hidden md:block'>

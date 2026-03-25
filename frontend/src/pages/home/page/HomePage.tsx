@@ -31,7 +31,7 @@ const HomePage = () => {
   }, [initializeQueue, madeForYouSongs, trendingSongs, featuredSongs]);
 
   return (
-    <main className="rounded-md overflow-hidden h-full bg-gradient-to-b from-zinc-950 to-zinc-900">
+    <main className="rounded-md overflow-hidden h-full bg-linear-to-b from-zinc-950 to-zinc-900">
       {/* <Topbar /> */}
        {/* <Button
           onClick={() => {

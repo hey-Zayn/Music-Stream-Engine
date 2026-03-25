@@ -1,13 +1,13 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import type { Message, User } from "@/types";
-import { io } from "socket.io-client";
+import { io, type Socket } from "socket.io-client";
 
 interface chatStore {
   users: User[];
   isLoading: boolean;
   error: string | null;
-  socket: any;
+  socket: Socket | null;
   isConnected: boolean;
   onlineUsers: Set<string>;
   userActivities: Map<string, string>;
@@ -165,7 +165,6 @@ export const useChatStore = create<chatStore>((set, get) => ({
         ? response.data
         : response.data?.messages ?? [];
       set({ messages: messagesPayload });
-      console.log(response);
     } catch (error) {
       let message = "Error fetching messages";
       try {

@@ -1,14 +1,14 @@
-// Mock MUST come before requiring the controller
+// Mock dependencies
+const mockGetUser = vi.fn();
 vi.mock('@clerk/express', () => ({
   clerkClient: {
     users: {
-      getUser: vi.fn(),
+      getUser: (...args) => mockGetUser(...args),
     },
   },
 }));
 
 const { checkAdmin } = require('./admin.controller');
-const { clerkClient } = require('@clerk/express');
 
 describe('admin.controller - checkAdmin', () => {
   let req, res, next;
@@ -34,7 +34,7 @@ describe('admin.controller - checkAdmin', () => {
   });
 
   it('should return admin: true if user email matches ADMIN_EMAIL', async () => {
-    clerkClient.users.getUser.mockResolvedValue({
+    mockGetUser.mockResolvedValue({
       primaryEmailAddress: { emailAddress: 'admin@example.com' },
     });
 
@@ -44,7 +44,7 @@ describe('admin.controller - checkAdmin', () => {
   });
 
   it('should return admin: false if user email does not match ADMIN_EMAIL', async () => {
-    clerkClient.users.getUser.mockResolvedValue({
+    mockGetUser.mockResolvedValue({
       primaryEmailAddress: { emailAddress: 'user@example.com' },
     });
 

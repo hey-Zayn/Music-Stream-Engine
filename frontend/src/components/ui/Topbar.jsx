@@ -4,7 +4,7 @@ import { LayoutDashboard } from 'lucide-react'
 import { SignedIn, SignedOut, SignInButton, SignOutButton, UserAvatar, UserButton } from '@clerk/clerk-react'
 import SignInOAuth from './SignInOAuth'
 import { useAuthStore } from '@/store/useAuthStore'
-import { buttonVariants } from './button'
+import { buttonVariants } from './button-variants'
 import {cn} from "@/lib/utils"
 
 

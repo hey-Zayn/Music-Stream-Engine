@@ -25,7 +25,7 @@ describe('useMusicStore', () => {
 
   it('should fetch songs successfully', async () => {
     const mockSongs = [{ _id: '1', title: 'Song 1' }];
-    (axiosInstance.get as any).mockResolvedValueOnce({ data: mockSongs });
+    vi.mocked(axiosInstance.get).mockResolvedValueOnce({ data: mockSongs });
 
     await useMusicStore.getState().fetchSongs();
 
@@ -35,7 +35,7 @@ describe('useMusicStore', () => {
   });
 
   it('should handle fetch error', async () => {
-    (axiosInstance.get as any).mockRejectedValueOnce(new Error('Fetch failed'));
+    vi.mocked(axiosInstance.get).mockRejectedValueOnce(new Error('Fetch failed'));
 
     await useMusicStore.getState().fetchSongs();
 
