@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MusicApp — Unit Test Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2333;
+      --border: #30363d;
+      --green: #3fb950;
+      --green-dim: #136128;
+      --green-glow: rgba(63,185,80,.15);
+      --blue: #58a6ff;
+      --purple: #bc8cff;
+      --yellow: #e3b341;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --white: #f0f6fc;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    /* ── Header ── */
+    header {
+      max-width: 960px;
+      margin: 0 auto 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #1db954, #191414);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      box-shadow: 0 0 24px rgba(29,185,84,.35);
+    }
+    header h1 { font-size: 1.5rem; font-weight: 700; color: var(--white); }
+    header p  { font-size: .85rem; color: var(--muted); margin-top: .25rem; }
+
+    .badge {
+      margin-left: auto;
+      background: var(--green-dim);
+      color: var(--green);
+      border: 1px solid var(--green);
+      padding: .35rem .9rem;
+      border-radius: 99px;
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      box-shadow: 0 0 12px var(--green-glow);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 12px var(--green-glow); }
+      50%      { box-shadow: 0 0 24px rgba(63,185,80,.4); }
+    }
+
+    /* ── Summary Cards ── */
+    .summary-grid {
+      max-width: 960px;
+      margin: 0 auto 2.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      transition: transform .2s, border-color .2s;
+    }
+    .card:hover { transform: translateY(-2px); border-color: var(--blue); }
+    .card .label { font-size: .75rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+    .card .value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-top: .25rem;
+      color: var(--white);
+    }
+    .card.green .value { color: var(--green); }
+    .card.blue  .value { color: var(--blue);  }
+    .card.purple .value { color: var(--purple); }
+
+    /* ── Progress Bar ── */
+    .progress-wrap {
+      max-width: 960px;
+      margin: 0 auto 2.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    .progress-label { display: flex; justify-content: space-between; margin-bottom: .75rem; font-size: .85rem; color: var(--muted); }
+    .progress-label span:last-child { color: var(--green); font-weight: 600; }
+    .bar-bg { background: var(--bg); border-radius: 99px; height: 10px; overflow: hidden; }
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #1db954, #3fb950);
+      animation: grow 1.2s cubic-bezier(.4,0,.2,1) forwards;
+      width: 0;
+    }
+    @keyframes grow { to { width: 100%; } }
+
+    /* ── Suite ── */
+    .suites { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+    .suite {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .suite-header {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: 1rem 1.5rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+    .suite-icon { font-size: 1.1rem; }
+    .suite-name { font-size: .95rem; font-weight: 600; color: var(--white); font-family: 'Fira Code', monospace; }
+    .suite-count {
+      margin-left: auto;
+      font-size: .8rem;
+      color: var(--green);
+      background: var(--green-dim);
+      border: 1px solid var(--green);
+      padding: .2rem .7rem;
+      border-radius: 99px;
+    }
+
+    /* ── Test rows ── */
+    .test-row {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .85rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .test-row:last-child { border-bottom: none; }
+    .test-row:hover { background: rgba(255,255,255,.03); }
+
+    .tick { color: var(--green); font-size: 1rem; flex-shrink: 0; }
+    .group {
+      font-size: .72rem;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: .15rem .5rem;
+      font-family: 'Fira Code', monospace;
+      flex-shrink: 0;
+    }
+    .test-name { font-size: .875rem; color: var(--text); flex: 1; }
+    .duration {
+      font-size: .75rem;
+      color: var(--muted);
+      font-family: 'Fira Code', monospace;
+      flex-shrink: 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      max-width: 960px;
+      margin: 3rem auto 0;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .8rem;
+      color: var(--muted);
+    }
+    footer .tool { color: var(--blue); font-weight: 600; }
+    footer .project { color: var(--purple); font-weight: 600; }
+
+    @media (max-width: 600px) {
+      body { padding: 1rem; }
+      header { flex-wrap: wrap; }
+      .badge { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────── -->
+<header>
+  <div class="logo">🎵</div>
+  <div>
+    <h1>MusicApp — Unit Test Report</h1>
+    <p>Backend API Controllers &nbsp;·&nbsp; Vitest v4.1.1 &nbsp;·&nbsp; March 26, 2026</p>
+  </div>
+  <span class="badge">✓ ALL PASSED</span>
+</header>
+
+<!-- ── Summary Cards ──────────────────────────────────── -->
+<div class="summary-grid">
+  <div class="card green">
+    <div class="label">Tests Passed</div>
+    <div class="value">18</div>
+  </div>
+  <div class="card">
+    <div class="label">Tests Failed</div>
+    <div class="value">0</div>
+  </div>
+  <div class="card blue">
+    <div class="label">Test Suites</div>
+    <div class="value">3</div>
+  </div>
+  <div class="card purple">
+    <div class="label">Duration</div>
+    <div class="value">3.8s</div>
+  </div>
+</div>
+
+<!-- ── Progress Bar ───────────────────────────────────── -->
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span>Pass Rate</span>
+    <span>18 / 18 &nbsp; → &nbsp; 100%</span>
+  </div>
+  <div class="bar-bg">
+    <div class="bar-fill"></div>
+  </div>
+</div>
+
+<!-- ── Test Suites ────────────────────────────────────── -->
+<div class="suites">
+
+  <!-- Suite 1 -->
+  <div class="suite">
+    <div class="suite-header">
+      <span class="suite-icon">🔐</span>
+      <span class="suite-name">admin.controller.test.ts</span>
+      <span class="suite-count">3 / 3 passed</span>
+    </div>
+
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">checkAdmin</span>
+      <span class="test-name">should return 401 if no userId is provided</span>
+      <span class="duration">19ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">checkAdmin</span>
+      <span class="test-name">should return admin: true if user email matches ADMIN_EMAIL</span>
+      <span class="duration">10ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">checkAdmin</span>
+      <span class="test-name">should return admin: false if user email does not match ADMIN_EMAIL</span>
+      <span class="duration">3ms</span>
+    </div>
+  </div>
+
+  <!-- Suite 2 -->
+  <div class="suite">
+    <div class="suite-header">
+      <span class="suite-icon">👥</span>
+      <span class="suite-name">user.controller.test.ts</span>
+      <span class="suite-count">8 / 8 passed</span>
+    </div>
+
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getAllUser</span>
+      <span class="test-name">should return 200 with a list of users (excluding current user)</span>
+      <span class="duration">17ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getAllUser</span>
+      <span class="test-name">should return an empty array when no other users exist</span>
+      <span class="duration">2ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getAllUser</span>
+      <span class="test-name">should call next() with error when database fails</span>
+      <span class="duration">2ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getAllUser</span>
+      <span class="test-name">should call next() if req.auth is null</span>
+      <span class="duration">2ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getMessage</span>
+      <span class="test-name">should return 200 with sorted messages between two users</span>
+      <span class="duration">5ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getMessage</span>
+      <span class="test-name">should return 200 with an empty array when no messages exist</span>
+      <span class="duration">1ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getMessage</span>
+      <span class="test-name">should call next() with error on database failure</span>
+      <span class="duration">1ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getMessage</span>
+      <span class="test-name">should sort messages in ascending createdAt order</span>
+      <span class="duration">1ms</span>
+    </div>
+  </div>
+
+  <!-- Suite 3 -->
+  <div class="suite">
+    <div class="suite-header">
+      <span class="suite-icon">💬</span>
+      <span class="suite-name">message.controller.test.ts</span>
+      <span class="suite-count">7 / 7 passed</span>
+    </div>
+
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">sendMessage</span>
+      <span class="test-name">should return 400 if receiverId is missing</span>
+      <span class="duration">15ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">sendMessage</span>
+      <span class="test-name">should return 400 if content is an empty string</span>
+      <span class="duration">3ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">sendMessage</span>
+      <span class="test-name">should return 400 if content is only whitespace</span>
+      <span class="duration">1ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">sendMessage</span>
+      <span class="test-name">should return 400 if receiverId is an empty string</span>
+      <span class="duration">1ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getUnreadCount</span>
+      <span class="test-name">should return 200 with unread count for authenticated user</span>
+      <span class="duration">3ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getUnreadCount</span>
+      <span class="test-name">should return count of 0 when no unread messages exist</span>
+      <span class="duration">2ms</span>
+    </div>
+    <div class="test-row">
+      <span class="tick">✓</span>
+      <span class="group">getUnreadCount</span>
+      <span class="test-name">should call next() when the database throws an error</span>
+      <span class="duration">2ms</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────── -->
+<footer>
+  <span>Generated by <span class="tool">Vitest v4.1.1</span></span>
+  <span>Project: <span class="project">MusicApp / Music-Stream-Engine</span></span>
+  <span>Branch: <span class="tool">Live-0</span></span>
+</footer>
+
+</body>
+</html>

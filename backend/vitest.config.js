@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/*.test.{js,ts}'],
+    include: ['src/__tests__/**/*.test.{js,ts}'],
+    reporters: ['verbose'],
   },
 });
