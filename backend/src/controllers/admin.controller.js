@@ -214,7 +214,6 @@ const deleteAlbum = async (req, res, next) => {
 const checkAdmin = async (req, res, next) => {
   try {
     const userId = req.auth?.userId;
-    console.log('DEBUG: checkAdmin called with userId:', userId);
     
     if (!userId) {
       return res.status(401).json({ 
