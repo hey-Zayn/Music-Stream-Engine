@@ -43,7 +43,7 @@ app.use(cors({
     origin: [
         "http://localhost:3000",
         "https://musicshoot.vercel.app",
-        "https://musicshoot.vercel.app/"
+        "https://musicshoot.vercel.app"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -84,7 +84,7 @@ connectDB();
 app.use((err, req, res, next) => {
     // Log the error
     Logger.error(`${req.method} ${req.url} - ${err.message}`);
-    
+
     // Add CORS headers to error response just in case
     const origin = req.headers.origin;
     const allowedOrigins = ["http://localhost:3000", "https://musicshoot.vercel.app", "https://musicshoot.vercel.app/"];
@@ -100,8 +100,8 @@ app.use((err, req, res, next) => {
     const status = err.status || 500;
     res.status(status).json({
         success: false,
-        message: status === 500 && process.env.NODE_ENV === "production" 
-            ? "Internal Server Error" 
+        message: status === 500 && process.env.NODE_ENV === "production"
+            ? "Internal Server Error"
             : err.message
     });
 });
