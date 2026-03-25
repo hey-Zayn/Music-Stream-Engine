@@ -8,11 +8,11 @@ import { useState } from "react";
 const MessageInput = () => {
     const [newMessage, setNewMessage] = useState("");
     const { user } = useUser();
-    const { selectedUser, sendMessge } = useChatStore();
+    const { selectedUser, sendMessage } = useChatStore();
 
-    const handleSend = () => {
-        if (!selectedUser || !user || !newMessage) return;
-        sendMessge(selectedUser.clerkId, user.id, newMessage.trim());
+    const handleSend = async () => {
+        if (!selectedUser || !user || !newMessage.trim()) return;
+        await sendMessage(selectedUser.clerkId, newMessage.trim());
         setNewMessage("");
     };
 

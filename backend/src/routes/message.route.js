@@ -6,8 +6,10 @@ const {
     getUnreadCount
 } = require('../controllers/message.controller');
 
+const { protectRoute } = require('../middleware/auth.middleware');
+
 // Send message
-router.post('/send', sendMessage);
+router.post('/send', protectRoute, sendMessage);
 
 // Get messages with a user
 // router.get('/:userId', getMessages);
