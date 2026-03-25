@@ -40,10 +40,14 @@ app.get("/debug-sentry", function mainHandler(req, res) {
 });
 
 app.use(cors({
-    // origin: ["http://localhost:3000", "https://musicshoot.vercel.app"],
-    origin: ["http://localhost:3000", "https://musicshoot.vercel.app"],
-    // origin: "http://localhost:3000",
+    origin: [
+        "http://localhost:3000",
+        "https://musicshoot.vercel.app",
+        "https://musicshoot.vercel.app/"
+    ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
 app.use(express.json()); // to parse req.body
 app.use(clerkMiddleware()); // this will add auth to req obj => req.auth
@@ -78,14 +82,27 @@ connectDB();
 
 // Error Handler
 app.use((err, req, res, next) => {
+    // Log the error
     Logger.error(`${req.method} ${req.url} - ${err.message}`);
+    
+    // Add CORS headers to error response just in case
+    const origin = req.headers.origin;
+    const allowedOrigins = ["http://localhost:3000", "https://musicshoot.vercel.app", "https://musicshoot.vercel.app/"];
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+
     if (process.env.NODE_ENV !== "production") {
         Logger.debug(err.stack);
     }
 
-    res.status(err.status || 500).json({
+    const status = err.status || 500;
+    res.status(status).json({
         success: false,
-        message: process.env.NODE_ENV === "production" ? "Internal Server Error" : err.message
+        message: status === 500 && process.env.NODE_ENV === "production" 
+            ? "Internal Server Error" 
+            : err.message
     });
 });
 
