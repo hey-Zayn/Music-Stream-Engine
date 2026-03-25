@@ -1,4 +1,4 @@
-const { clerkClient } = require('@clerk/express');
+const clerk = require('@clerk/express');
 const Song = require("../models/song.model");
 const Album = require("../models/album.model");
 const cloudinary = require("../lib/cloudinary");
@@ -214,6 +214,7 @@ const deleteAlbum = async (req, res, next) => {
 const checkAdmin = async (req, res, next) => {
   try {
     const userId = req.auth?.userId;
+    console.log('DEBUG: checkAdmin called with userId:', userId);
     
     if (!userId) {
       return res.status(401).json({ 
@@ -224,7 +225,7 @@ const checkAdmin = async (req, res, next) => {
     }
 
     // Final security check for the admin flag
-    const currentUser = await clerkClient.users.getUser(userId);
+    const currentUser = await clerk.clerkClient.users.getUser(userId);
     const primaryEmail = currentUser?.primaryEmailAddress?.emailAddress;
     const isAdmin = process.env.ADMIN_EMAIL && primaryEmail && process.env.ADMIN_EMAIL === primaryEmail;
 
