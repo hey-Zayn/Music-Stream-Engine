@@ -1,6 +1,15 @@
+const clerk = require('@clerk/express');
 const Song = require("../models/song.model");
 const Album = require("../models/album.model");
 const cloudinary = require("../lib/cloudinary");
+
+const getPublicId = (url) => {
+  if (!url) return null;
+  const parts = url.split("/");
+  const fileName = parts.pop();
+  const publicId = fileName.split(".")[0];
+  return publicId;
+};
 
 const uploadToCloudinary = async (file) => {
   try {
@@ -80,6 +89,20 @@ const deleteSong = async (req, res, next) => {
       });
     }
 
+    // Delete files from Cloudinary
+    try {
+      if (song.audioUrl) {
+        const audioPublicId = getPublicId(song.audioUrl);
+        await cloudinary.uploader.destroy(audioPublicId, { resource_type: "video" }); // audio is "video" in Cloudinary
+      }
+      if (song.imageUrl) {
+        const imagePublicId = getPublicId(song.imageUrl);
+        await cloudinary.uploader.destroy(imagePublicId);
+      }
+    } catch (cloudinaryError) {
+      console.error("Cloudinary deletion failed:", cloudinaryError);
+    }
+
     if (song.albumId) {
       await Album.findByIdAndUpdate(song.albumId, {
         $pull: { songs: song._id },
@@ -90,7 +113,7 @@ const deleteSong = async (req, res, next) => {
 
     res.status(200).json({ 
       success: true,
-      message: "Song deleted successfully" 
+      message: "Song and associated media deleted successfully" 
     });
   } catch (error) {
     console.error("Error in deleteSong:", error);
@@ -144,12 +167,35 @@ const deleteAlbum = async (req, res, next) => {
   try {
     const { id } = req.params;
     
-    const album = await Album.findById(id);
+    const album = await Album.findById(id).populate("songs");
     if (!album) {
       return res.status(404).json({ 
         success: false,
         message: "Album not found" 
       });
+    }
+
+    // Delete all songs media from Cloudinary
+    for (const song of album.songs) {
+      try {
+        if (song.audioUrl) {
+          await cloudinary.uploader.destroy(getPublicId(song.audioUrl), { resource_type: "video" });
+        }
+        if (song.imageUrl) {
+          await cloudinary.uploader.destroy(getPublicId(song.imageUrl));
+        }
+      } catch (err) {
+        console.error("Error deleting song media during album deletion:", err);
+      }
+    }
+
+    // Delete album image from Cloudinary
+    try {
+      if (album.imageUrl) {
+        await cloudinary.uploader.destroy(getPublicId(album.imageUrl));
+      }
+    } catch (err) {
+      console.error("Error deleting album image:", err);
     }
     
     await Song.deleteMany({ albumId: id });
@@ -157,7 +203,7 @@ const deleteAlbum = async (req, res, next) => {
     
     res.status(200).json({ 
       success: true,
-      message: "Album and associated songs deleted successfully" 
+      message: "Album and all associated music and files deleted successfully" 
     });
   } catch (error) {
     console.error("Error in deleteAlbum:", error);
@@ -167,8 +213,6 @@ const deleteAlbum = async (req, res, next) => {
 
 const checkAdmin = async (req, res, next) => {
   try {
-    // For Clerk.js, you might need to verify the user role
-    // This depends on how you've set up your Clerk middleware
     const userId = req.auth?.userId;
     
     if (!userId) {
@@ -178,14 +222,20 @@ const checkAdmin = async (req, res, next) => {
         message: "Unauthorized" 
       });
     }
-    
-    // Here you would typically check if the user has admin role
-    // Example: Check in your database or Clerk metadata
-    // const user = await User.findById(userId);
-    // const isAdmin = user?.role === 'admin';
-    
-    // For now, assuming all authenticated users are admins
-    // (You should implement proper role checking)
+
+    // Final security check for the admin flag
+    const currentUser = await clerk.clerkClient.users.getUser(userId);
+    const primaryEmail = currentUser?.primaryEmailAddress?.emailAddress;
+    const isAdmin = process.env.ADMIN_EMAIL && primaryEmail && process.env.ADMIN_EMAIL === primaryEmail;
+
+    if (!isAdmin) {
+      return res.status(200).json({
+        success: true,
+        admin: false,
+        message: "You are not an admin"
+      });
+    }
+
     res.status(200).json({ 
       success: true,
       admin: true, 

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
     "dev": "nodemon ./src/index.js",
     "start": "node ./src/index.js",
     "seed:songs": "node ./src/seeds/songs.js",
@@ -24,6 +24,11 @@
     "express-fileupload": "^1.5.2",
     "mongoose": "^9.0.0",
     "nodemon": "^3.1.11",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2",
+    "vitest": "^4.1.1"
   }
 }

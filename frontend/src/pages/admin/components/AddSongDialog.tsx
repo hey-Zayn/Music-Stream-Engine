@@ -67,8 +67,7 @@ const AddSongDialog = () => {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
-			}).then((res) => console.log(res)
-			)
+			});
 
 			setNewSong({
 				title: "",
@@ -82,8 +81,9 @@ const AddSongDialog = () => {
 				image: null,
 			});
 			toast.success("Song added successfully");
-		} catch (error: any) {
-			toast.error("Failed to add song: " + error.message);
+		} catch (error: unknown) {
+			const e = error as { message?: string };
+			toast.error("Failed to add song: " + e.message);
 		} finally {
 			setIsLoading(false);
 		}
