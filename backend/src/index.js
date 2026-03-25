@@ -1,6 +1,3 @@
-// Initialize Sentry (instrument.js initializes and exports the Sentry instance)
-// It is required here so that Sentry is configured early in the app lifecycle
-// and the exported Sentry instance is used below for handlers.
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./Database/connection');
@@ -16,53 +13,36 @@ const Logger = require("./lib/logger");
 
 const app = express();
 
-
-
-// Use the built-in __dirname or create a custom variable
-const projectRoot = path.resolve();
-
-const httpServer = createServer(app);
-
-initializeSocket(httpServer);
-
-// Register Sentry handlers BEFORE routes
-// app.get("/debug-sentry", function mainHandler(req, res) {
-//   throw new Error("My first Sentry error!");
-// });
-
-Sentry.setupExpressErrorHandler(app);
-
-const port = process.env.PORT || 5000;
-
-
-app.get("/debug-sentry", function mainHandler(req, res) {
-    throw new Error("My first Sentry error!");
-});
-
+// 1. CORS FIRST!
 app.use(cors({
     origin: [
         "http://localhost:3000",
-        "https://musicshoot.vercel.app",
         "https://musicshoot.vercel.app"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
-app.use(express.json()); // to parse req.body
-app.use(clerkMiddleware()); // this will add auth to req obj => req.auth
+
+// 2. Body Parser & Middleware
+app.use(express.json());
+app.use(clerkMiddleware());
+
+const projectRoot = path.resolve();
 app.use(
     fileUpload({
         useTempFiles: true,
         tempFileDir: path.join(projectRoot, "tmp"),
         createParentPath: true,
-        limits: {
-            fileSize: 10 * 1024 * 1024, // 10MB max file size
-        },
+        limits: { fileSize: 10 * 1024 * 1024 },
     })
 );
 
-// app.use('/api/users', require('./routes/user.route'));
+// 3. Socket.io
+const httpServer = createServer(app);
+initializeSocket(httpServer);
+
+// 4. Routes
 app.use('/api/users', require('./routes/user.route'));
 app.use('/api/messages', require('./routes/message.route'));
 app.use('/api/notifications', require('./routes/notification.route'));
@@ -72,23 +52,19 @@ app.use('/api/admin', require('./routes/admin.route'));
 app.use('/api/albums', require('./routes/album.route'));
 app.use('/api/stats', require('./routes/stats.route'));
 
-// Sentry error handler (should be registered before custom error middleware)
-if (Sentry.Handlers && typeof Sentry.Handlers.errorHandler === 'function') {
-    app.use(Sentry.Handlers.errorHandler());
-}
+app.get('/', (req, res) => res.send('API is running...'));
 
-// Connect to Database
-connectDB();
+// 5. Sentry Error Handler AFTER routes
+Sentry.setupExpressErrorHandler(app);
 
-// Error Handler
+// 6. Custom Global Error Handler
 app.use((err, req, res, next) => {
-    // Log the error
     Logger.error(`${req.method} ${req.url} - ${err.message}`);
-
-    // Add CORS headers to error response just in case
+    
+    // Safety check for CORS on error response
     const origin = req.headers.origin;
-    const allowedOrigins = ["http://localhost:3000", "https://musicshoot.vercel.app", "https://musicshoot.vercel.app/"];
-    if (allowedOrigins.includes(origin)) {
+    const allowedOrigins = ["http://localhost:3000", "https://musicshoot.vercel.app"];
+    if (origin && allowedOrigins.includes(origin)) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
@@ -106,21 +82,9 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
-
-
-
-// Production fallback for SPA routing
-// if (process.env.NODE_ENV === 'production') {
-//     app.use(express.static(path.join(projectRoot, '../frontend/dist')))
-//     app.all('*', (req, res) => {
-//         res.sendFile(path.resolve(projectRoot, '../frontend/dist/index.html'))
-//     })
-// }
-
-// Make sure port is defined
+// 7. Database & Server start
+const port = process.env.PORT || 5000;
+connectDB();
 
 httpServer.listen(port, () => {
     Logger.info(`Server is running on port ${port}`);
