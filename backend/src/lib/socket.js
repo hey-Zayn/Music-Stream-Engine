@@ -4,10 +4,11 @@ const Message = require('../models/message.model');
 const initializeSocket = (server) => {
     const io = new Server(server, {
         cors: {
-            // origin: process.env.NODE_ENV === 'production' 
-            //     ? 'https://musicshoot.vercel.app'
-            //     : 'http://localhost:3000',
-            origin: 'http://localhost:3000',
+            origin: [
+                'http://localhost:3000',
+                'https://musicshoot.vercel.app',
+                'https://musicshoot.vercel.app/'
+            ],
             credentials: true,
         }
     });
