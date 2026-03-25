@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import {
   ResizableHandle,
@@ -10,7 +10,6 @@ import FriendsActivity from './components/FriendsActivity'
 import AuidoPlayer from './components/AuidoPlayer'
 import PlaybackControls from './components/PlaybackControls'
 import TopHeader from './components/TopHeader'
-import Topbar from '../ui/Topbar'
 
 const MainLayout = () => {
   const [isMobile, setIsMobile] = useState(false);

@@ -12,6 +12,7 @@ const { createServer } = require('http');
 const { initializeSocket } = require('./lib/socket');
 const Sentry = require("@sentry/node");
 require("./instrument.js");
+const Logger = require("./lib/logger");
 
 const app = express();
 
@@ -77,10 +78,15 @@ connectDB();
 
 // Error Handler
 app.use((err, req, res, next) => {
-    console.error("Error in production:", err); // Log full error to Vercel console
-    res.status(500).json({
+    Logger.error(`${req.method} ${req.url} - ${err.message}`);
+    if (process.env.NODE_ENV !== "production") {
+        Logger.debug(err.stack);
+    }
+
+    res.status(err.status || 500).json({
+        success: false,
         message: process.env.NODE_ENV === "production" ? "Internal Server Error" : err.message
-    })
+    });
 });
 
 app.get('/', (req, res) => {
@@ -99,10 +105,8 @@ app.get('/', (req, res) => {
 
 // Make sure port is defined
 
-if (process.env.NODE_ENV !== 'production') {
-    httpServer.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-}
+httpServer.listen(port, () => {
+    Logger.info(`Server is running on port ${port}`);
+});
 
 module.exports = app;

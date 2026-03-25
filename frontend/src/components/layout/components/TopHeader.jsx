@@ -48,7 +48,7 @@ const TopHeader = () => {
                         Explore More
                     </Button> */}
                     <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger asChild>
                             <Button variant={"ghost"} className='rounded-full'>
                                 Invite Friends
                             </Button>
@@ -58,7 +58,7 @@ const TopHeader = () => {
                         </TooltipContent>
                     </Tooltip>
                     <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger asChild>
                             <Link to="/chat">
                                 <Button variant={"ghost"} size={"icon-lg"} className='size-10   rounded-full '>
                                     <IoIosPeople className='size-5.5' />

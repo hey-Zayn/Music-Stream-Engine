@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react'
-import Topbar from '../../../components/ui/Topbar'
+import { useEffect } from 'react'
 import { useMusicStore } from '../../../store/useMusicStore'
 import FeaturedSection from '../components/FeaturedSection'
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -17,7 +16,7 @@ const HomePage = () => {
     fetchMadeForYou()
     fetchTrendingSongs()
     // console.log(featuredSongs)
-  }, []);
+  }, [fetchFeaturedSongs, fetchMadeForYou, fetchTrendingSongs]);
 
   const { initializeQueue, } = usePlayerStore();
 

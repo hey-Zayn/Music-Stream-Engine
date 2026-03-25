@@ -1,2 +1,10 @@
-.env
 node_modules
+.env
+logs/*.log
+tmp/
+*.log
+.DS_Store
+dist/
+build/
+.cache/
+.sentry-debug-id-*

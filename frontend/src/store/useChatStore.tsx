@@ -70,8 +70,17 @@ export const useChatStore = create<chatStore>((set, get) => ({
   initSocket: (userId) => {
     if (!get().isConnected) {
       socket.auth = { userId };
-
       socket.connect();
+
+      // Clear existing listeners to prevent duplicates
+      socket.off("user_online");
+      socket.off("activities");
+      socket.off("user_connected");
+      socket.off("user_disconnected");
+      socket.off("receive_message");
+      socket.off("message_sent");
+      socket.off("activity_updated");
+
       socket.emit("user_connected", userId);
 
       // store socket instance in state so other actions can use it
@@ -126,6 +135,14 @@ export const useChatStore = create<chatStore>((set, get) => ({
   },
   disconnectSocket: () => {
     if (get().isConnected) {
+      socket.off("user_online");
+      socket.off("activities");
+      socket.off("user_connected");
+      socket.off("user_disconnected");
+      socket.off("receive_message");
+      socket.off("message_sent");
+      socket.off("activity_updated");
+
       socket.disconnect();
       set({ isConnected: false, socket: null });
     }
