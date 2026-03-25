@@ -1,13 +1,11 @@
-
 import { useChatStore } from "@/store/useChatStore";
 import { useUser } from "@clerk/clerk-react";
-import { useEffect } from "react";
-import UsersList from "../components/UsersList.jsx";
+import { useEffect, useRef } from "react";
+import UsersList from "../components/UsersList";
 import ChatHeader from "../components/ChatHeader";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import MessageInput from "../components/MessageInput";
-// import TopHeader from "../../../components/layout/components/TopHeader";
 
 const formatTime = (date: string | number | Date) => {
 	return new Date(date).toLocaleTimeString("en-US", {
@@ -19,32 +17,38 @@ const formatTime = (date: string | number | Date) => {
 
 const ChatPage = () => {
 	const { user } = useUser();
-	const { messages, selectedUser, fetchUsers, fetchMessages } = useChatStore();
+	const { messages, selectedUser, fetchUsers, fetchMessages, startPolling, stopPolling } = useChatStore();
+	const scrollRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		if (user) fetchUsers();
 	}, [fetchUsers, user]);
 
 	useEffect(() => {
-		if (selectedUser) fetchMessages(selectedUser.clerkId);
-	}, [selectedUser, fetchMessages]);
+		if (selectedUser) {
+			fetchMessages(selectedUser.clerkId);
+			startPolling(selectedUser.clerkId);
+		}
 
-	// console.log({ messages });
+		return () => stopPolling();
+	}, [selectedUser, fetchMessages, startPolling, stopPolling]);
+
+	useEffect(() => {
+		if (scrollRef.current) {
+			scrollRef.current.scrollIntoView({ behavior: "smooth" });
+		}
+	}, [messages]);
 
 	return (
 		<main className='h-full rounded-lg bg-linear-to-b from-zinc-800 to-zinc-900 overflow-hidden'>
-			{/* <TopHeader/> */}
-
 			<div className='grid lg:grid-cols-[300px_1fr] grid-cols-[80px_1fr] h-[calc(100vh-180px)]'>
 				<UsersList />
 
-				{/* chat message */}
 				<div className='flex flex-col h-full'>
 					{selectedUser ? (
 						<>
 							<ChatHeader />
 
-							{/* Messages */}
 							<ScrollArea className='h-[calc(100vh-340px)]'>
 								<div className='p-4 space-y-4'>
 									{messages?.map((message) => (
@@ -76,6 +80,7 @@ const ChatPage = () => {
 											</div>
 										</div>
 									))}
+									<div ref={scrollRef} />
 								</div>
 							</ScrollArea>
 
@@ -89,7 +94,6 @@ const ChatPage = () => {
 		</main>
 	);
 };
-export default ChatPage;
 
 const NoConversationPlaceholder = () => (
 	<div className='flex flex-col items-center justify-center h-full space-y-6'>
@@ -100,3 +104,5 @@ const NoConversationPlaceholder = () => (
 		</div>
 	</div>
 );
+
+export default ChatPage;
