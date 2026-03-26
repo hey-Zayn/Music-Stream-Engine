@@ -18,15 +18,17 @@ interface MusicStore {
     isStatsLoading: boolean,
 
 
-    fetchAlbums: () => Promise<void>,
+    fetchAlbums: (userOnly?: boolean) => Promise<void>,
     fetchAlbumById: (id: string) => Promise<void>
     fetchFeaturedSongs: () => Promise<void>,
     fetchMadeForYou: () => Promise<void>,
     fetchTrendingSongs: () => Promise<void>,
-    fetchStats: () => Promise<void>,
-    fetchSongs: () => Promise<void>,
+    fetchStats: (userOnly?: boolean) => Promise<void>,
+    fetchSongs: (userOnly?: boolean) => Promise<void>,
     deleteSong: (id: string) => Promise<void>,
     deleteAlbum: (id: string) => Promise<void>,
+    updateSong: (id: string, formData: FormData) => Promise<void>,
+    updateAlbum: (id: string, formData: FormData) => Promise<void>,
 
     fetchSingleSong: () => Promise<void>,
 }
@@ -73,15 +75,15 @@ export const useMusicStore = create<MusicStore>((set) => {
         fetchFeaturedSongs: () => fetchWrapper('/songs/featured', 'featuredSongs', 'Error fetching featured songs'),
         fetchMadeForYou: () => fetchWrapper('/songs/made-for-you', 'madeForYouSongs', 'Error fetching made-for-you songs'),
         fetchTrendingSongs: () => fetchWrapper('/songs/trending', 'trendingSongs', 'Error fetching trending songs'),
-        fetchStats: () => fetchWrapper('/stats', 'stats', 'Error fetching stats'),
-        fetchAlbums: () => fetchWrapper('/albums', 'albums', 'Error fetching albums'),
+        fetchStats: (userOnly = false) => fetchWrapper(`/stats${userOnly ? '?user=true' : ''}`, 'stats', 'Error fetching stats'),
+        fetchAlbums: (userOnly = false) => fetchWrapper(`/albums${userOnly ? '?user=true' : ''}`, 'albums', 'Error fetching albums'),
         fetchAlbumById: (id) => fetchWrapper(`/albums/${id}`, 'currentAlbum', 'Error fetching album'),
-        fetchSongs: () => fetchWrapper('/songs', 'songs', 'Error fetching songs', 'isSongsLoading'),
+        fetchSongs: (userOnly = false) => fetchWrapper(`/songs${userOnly ? '?user=true' : ''}`, 'songs', 'Error fetching songs', 'isSongsLoading'),
 
         deleteSong: async (id) => {
             set({ isLoading: true, error: null });
             try {
-                await axiosInstance.delete(`/admin/songs/${id}`);
+                await axiosInstance.delete(`/songs/${id}`);
                 set((state) => ({
                     songs: state.songs.filter((song) => song._id !== id),
                 }));
@@ -97,7 +99,7 @@ export const useMusicStore = create<MusicStore>((set) => {
         deleteAlbum: async (id) => {
             set({ isLoading: true, error: null });
             try {
-                await axiosInstance.delete(`/admin/albums/${id}`);
+                await axiosInstance.delete(`/albums/${id}`);
                 set((state) => ({
                     albums: state.albums.filter((album) => album._id !== id),
                     // If a song belongs to this album, clear its albumId
@@ -109,6 +111,41 @@ export const useMusicStore = create<MusicStore>((set) => {
             } catch (error: unknown) {
                 const e = error as { response?: { data?: { message?: string } } };
                 toast.error(e?.response?.data?.message || "Failed to delete album");
+            } finally {
+                set({ isLoading: false });
+            }
+        },
+        updateSong: async (id, formData) => {
+            set({ isLoading: true, error: null });
+            try {
+                const response = await axiosInstance.put(`/songs/${id}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" }
+                });
+                set((state) => ({
+                    songs: state.songs.map((song) => song._id === id ? response.data.song : song)
+                }));
+                toast.success("Song updated successfully");
+            } catch (error: unknown) {
+                const e = error as { response?: { data?: { message?: string } } };
+                toast.error(e.response?.data?.message || "Error updating song");
+            } finally {
+                set({ isLoading: false });
+            }
+        },
+
+        updateAlbum: async (id, formData) => {
+            set({ isLoading: true, error: null });
+            try {
+                const response = await axiosInstance.put(`/albums/${id}`, formData, {
+                    headers: { "Content-Type": "multipart/form-data" }
+                });
+                set((state) => ({
+                    albums: state.albums.map((album) => album._id === id ? response.data.album : album)
+                }));
+                toast.success("Album updated successfully");
+            } catch (error: unknown) {
+                const e = error as { response?: { data?: { message?: string } } };
+                toast.error(e.response?.data?.message || "Error updating album");
             } finally {
                 set({ isLoading: false });
             }

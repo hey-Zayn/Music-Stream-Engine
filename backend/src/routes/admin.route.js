@@ -7,11 +7,8 @@ const { createSong, deleteAlbum, createAlbum, deleteSong, checkAdmin } = require
 
 router.get('/check', protectRoute, requireAdmin, checkAdmin);
 // Sample route to get all users
-router.post('/songs', protectRoute, requireAdmin, createSong);
-router.delete('/songs/:id', protectRoute, requireAdmin, deleteSong);
-
-router.post('/albums', protectRoute, requireAdmin, createAlbum);
-router.delete('/albums/:id', protectRoute, requireAdmin, deleteAlbum);
+// Admin-only deletion/management can be kept here if desired, 
+// but creation is now open to all in their respective routes.
 
 
 module.exports = router;

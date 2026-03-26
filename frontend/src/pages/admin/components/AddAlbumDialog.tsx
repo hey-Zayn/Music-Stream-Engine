@@ -9,14 +9,16 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { axiosInstance } from "@/lib/axios";
 import { Plus, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useMusicStore } from "@/store/useMusicStore";
+import { axiosInstance } from "@/lib/axios";
 
 const AddAlbumDialog = () => {
 	const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const { fetchAlbums } = useMusicStore();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const [newAlbum, setNewAlbum] = useState({
@@ -48,7 +50,7 @@ const AddAlbumDialog = () => {
 			formData.append("releaseYear", newAlbum.releaseYear.toString());
 			formData.append("imageFile", imageFile);
 
-			await axiosInstance.post("/admin/albums", formData, {
+			await axiosInstance.post("/albums", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -62,6 +64,7 @@ const AddAlbumDialog = () => {
 			setImageFile(null);
 			setAlbumDialogOpen(false);
 			toast.success("Album created successfully");
+			fetchAlbums(true); // Refresh albums list with userOnly=true flag
 		} catch (error: unknown) {
 			const e = error as { message?: string };
 			toast.error("Failed to create album: " + e.message);

@@ -6,18 +6,17 @@ const getStats = async (req, res, next) => {
     try {
 
 
-        const [totalSongs, totalUsers, totalAlbum] = await Promise.all([
-            Song.countDocuments(),
-            User.countDocuments(),
-            Album.countDocuments(),
+        const filter = {};
+        if (req.query.user === "true") {
+            filter.creator = req.auth.userId;
+        }
 
+        const [totalSongs, totalUsers, totalAlbums, uniqueArtists] = await Promise.all([
+            Song.countDocuments(filter),
+            User.countDocuments(),
+            Album.countDocuments(filter),
             Song.aggregate([
-                {
-                    $unionWith: {
-                        coll: "albums",
-                        pipeline: [],
-                    },
-                },
+                { $match: filter },
                 {
                     $group: {
                         _id: "$artist",
@@ -30,7 +29,7 @@ const getStats = async (req, res, next) => {
         ]);
 
         res.status(200).json({
-            totalAlbum,
+            totalAlbums,
             totalSongs,
             totalUsers,
             totalArtists: uniqueArtists[0]?.count || 0,

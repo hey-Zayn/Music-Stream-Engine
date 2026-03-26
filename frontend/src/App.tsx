@@ -9,6 +9,7 @@ import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
 import MainLayout from "./components/layout/MainLayout";
 import AlbumPage from "./pages/album/AlbumPage";
 import AdminPage from "./pages/admin/AdminPage";
+import PlaylistPage from "./pages/playlists/PlaylistPage";
 import NotFoundPage from "./pages/404/NotFoundPage";
 
 const App = () => {
@@ -25,13 +26,14 @@ const App = () => {
           }
         />
         <Route path="/auth-callback" element={<AuthCallbackPage />} />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/dashboard" element={<AdminPage />} />
 
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           {/* <Route path='/' element={HomePage}/> */}
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/albums/:albumId" element={<AlbumPage />} />
+          <Route path="/playlists/:id" element={<PlaylistPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

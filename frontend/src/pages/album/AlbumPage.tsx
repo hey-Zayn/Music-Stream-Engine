@@ -5,7 +5,38 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from '@/components/ui/button';
 import { Clock, Pause, Play } from 'lucide-react';
 import { usePlayerStore } from '@/store/usePlayerStore';
+import AddToPlaylistDialog from '@/components/playlist/AddToPlaylistDialog';
 
+
+const ALBUM_THEMES = [
+	{ name: "Emerald", from: "from-emerald-900/80" },
+	{ name: "Royal Blue", from: "from-blue-900/80" },
+	{ name: "Deep Ruby", from: "from-rose-900/80" },
+	{ name: "Golden Amber", from: "from-amber-900/80" },
+	{ name: "Midnight Purple", from: "from-violet-900/80" },
+	{ name: "Deep Forest", from: "from-teal-900/80" },
+	{ name: "Crimson Red", from: "from-red-900/80" },
+	{ name: "Midnight Indigo", from: "from-indigo-900/80" },
+	{ name: "Luxury Pink", from: "from-pink-900/80" },
+	{ name: "Royal Gold", from: "from-yellow-900/80" },
+    { name: "Ocean Deep", from: "from-cyan-900/80" },
+    { name: "Deep Mint", from: "from-green-900/80" },
+    { name: "Desert Sand", from: "from-orange-900/80" },
+    { name: "Nordic Frost", from: "from-sky-900/80" },
+    { name: "Mystic Plum", from: "from-fuchsia-900/80" },
+    { name: "Deep Ochre", from: "from-amber-800/80" },
+    { name: "Velvet Grape", from: "from-purple-900/80" },
+];
+
+const getAlbumTheme = (id: string) => {
+	if (!id) return ALBUM_THEMES[0];
+	let hash = 0;
+	for (let i = 0; i < id.length; i++) {
+		hash = id.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	const index = Math.abs(hash) % ALBUM_THEMES.length;
+	return ALBUM_THEMES[index];
+};
 
 const AlbumPage = () => {
 
@@ -45,11 +76,16 @@ const AlbumPage = () => {
         if (!currentAlbum) return
         playAlbum(currentAlbum?.songs, index)
     }
+    const albumTheme = getAlbumTheme(albumId || "");
+
     return (
         <div className='h-full'>
             <ScrollArea className='h-full rounded-md'>
                 <div className='relative min-h-screen'>
-                    <div className='absolute  inset-0 bg-gradient-to-b from-[#5038a0]/80 via-zinc-900 to-zinc-900' aria-hidden="true">
+                    <div 
+                        className={`absolute inset-0 bg-linear-to-b ${albumTheme.from} via-zinc-900 to-black`} 
+                        aria-hidden="true"
+                    >
                         <div className='relative z-10'>
                             <div className='flex p-6 gap-6 pb-8'>
                                 <img src={currentAlbum?.imageUrl} alt={currentAlbum?.title}
@@ -97,6 +133,7 @@ const AlbumPage = () => {
                                     <div>
                                         <Clock className='h-4 w-4' />
                                     </div>
+                                    <div className="w-8"></div>
                                 </div>
 
                                 <div className='px-6'>
@@ -107,9 +144,9 @@ const AlbumPage = () => {
                                                 <div
                                                     key={song._id}
                                                     onClick={() => handlePlaySong(index)}
-                                                    className={`grid grid-cols-[16px_4fr_2fr_1fr] gap-4 px-4 py-2 text-sm 
-                      text-zinc-400 hover:bg-white/5 rounded-md group cursor-pointer
-                      `}
+                                                    className={`grid grid-cols-[16px_4fr_2fr_120px_40px] gap-4 px-4 py-2 text-sm
+                                                      text-zinc-400 hover:bg-white/5 rounded-md group cursor-pointer
+                                                      `}
                                                 >
                                                     <div className='flex items-center justify-center'>
                                                         {
@@ -137,6 +174,9 @@ const AlbumPage = () => {
                                                     </div>
                                                     <div className='flex items-center'>{song.createdAt.split("T")[0]}</div>
                                                     <div className='flex items-center'>{formatDuration(song.duration)}</div>
+                                                    <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+                                                        <AddToPlaylistDialog songId={song._id} />
+                                                    </div>
                                                 </div>
                                             );
                                         }

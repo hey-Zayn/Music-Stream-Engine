@@ -7,6 +7,9 @@ import { Link } from 'react-router-dom'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import PlaylistSkeleton from '../../skeletons/PlaylistSkeleton.jsx'
 import { useMusicStore } from '../../../store/useMusicStore.js'
+import { usePlaylistStore } from '../../../store/usePlaylistStore'
+import { Plus } from 'lucide-react'
+import CreatePlaylistDialog from './CreatePlaylistDialog'
 
 
 // icons 
@@ -18,13 +21,15 @@ const LeftSidebar = () => {
     // const [playlists, SetPlaylists] = useState([]);
 
     // useMusicStore
-    const { albums, isLoading, fetchAlbums } = useMusicStore();
+    const { albums, isLoading: isMusicLoading, fetchAlbums } = useMusicStore();
+    const { playlists, isLoading: isPlaylistLoading, fetchPlaylists } = usePlaylistStore();
 
     useEffect(() => {
         fetchAlbums();
-        // console.log({ albums });
+        fetchPlaylists();
+    }, [fetchAlbums, fetchPlaylists]);
 
-    }, []);
+    const isLoading = isMusicLoading || isPlaylistLoading;
 
 
     // placeholder for collapse handler (kept for future use)
@@ -60,8 +65,9 @@ const LeftSidebar = () => {
                 <div className='flex items-center justify-between mb-4'>
                     <div className='flex items-center text-white '>
                         <GoSidebarCollapse className='size-5 group-hover:mr-2 rotate-180 -translate-x-10  group-hover:block group-hover:translate-x-0 transition-all duration-300' />
-                        <span className='font-bold hidden md:inline'>Playlists</span>
+                        <span className='font-bold hidden md:inline'>Your Library</span>
                     </div>
+                    <CreatePlaylistDialog />
                 </div>
 
                 <ScrollArea className='h-[calc(100vh-300px)]'>
@@ -78,13 +84,39 @@ const LeftSidebar = () => {
                                             >
                                                 <img
                                                     src={album.imageUrl}
-                                                    alt='Playlist img'
+                                                    alt='Album img'
                                                     className='size-12 rounded-md shrink-0 object-cover'
                                                 />
 
                                                 <div className='flex-1 min-w-0 hidden md:block'>
                                                     <p className='font-medium truncate'>{album.title}</p>
                                                     <p className='text-sm text-zinc-400 truncate'>Album • {album.artist}</p>
+                                                </div>
+                                            </Link>
+                                        ))
+                                    }
+                                    {
+                                        playlists.map((playlist) => (
+                                            <Link
+                                                to={`/playlists/${playlist._id}`}
+                                                key={playlist._id}
+                                                className='p-2 hover:bg-zinc-800 rounded-md flex items-center gap-3 group cursor-pointer'
+                                            >
+                                                <div className="size-12 rounded-md shrink-0 bg-zinc-800 flex items-center justify-center overflow-hidden">
+                                                    {playlist.imageUrl ? (
+                                                        <img
+                                                            src={playlist.imageUrl}
+                                                            alt='Playlist img'
+                                                            className='size-full object-cover'
+                                                        />
+                                                    ) : (
+                                                        <Plus className="size-6 text-zinc-500" />
+                                                    )}
+                                                </div>
+
+                                                <div className='flex-1 min-w-0 hidden md:block'>
+                                                    <p className='font-medium truncate'>{playlist.name}</p>
+                                                    <p className='text-sm text-zinc-400 truncate'>Playlist • User</p>
                                                 </div>
                                             </Link>
                                         ))

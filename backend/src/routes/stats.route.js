@@ -4,7 +4,7 @@ const router = express.Router();
 const { protectRoute, requireAdmin } = require('../middleware/auth.middleware');
 
 // Sample route to get all users
-router.get('/', protectRoute, requireAdmin, getStats);
+router.get('/', protectRoute, getStats);
 
 
 module.exports = router;

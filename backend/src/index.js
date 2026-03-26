@@ -34,7 +34,7 @@ app.use(
         useTempFiles: true,
         tempFileDir: path.join(projectRoot, "tmp"),
         createParentPath: true,
-        limits: { fileSize: 10 * 1024 * 1024 },
+        limits: { fileSize: 50 * 1024 * 1024 },
     })
 );
 
@@ -50,6 +50,7 @@ app.use('/api/auth', require('./routes/auth.route'));
 app.use('/api/songs', require('./routes/songs.route'));
 app.use('/api/admin', require('./routes/admin.route'));
 app.use('/api/albums', require('./routes/album.route'));
+app.use('/api/playlists', require('./routes/playlist.route'));
 app.use('/api/stats', require('./routes/stats.route'));
 
 app.get('/', (req, res) => res.send('API is running...'));
@@ -60,7 +61,7 @@ Sentry.setupExpressErrorHandler(app);
 // 6. Custom Global Error Handler
 app.use((err, req, res, next) => {
     Logger.error(`${req.method} ${req.url} - ${err.message}`);
-    
+
     // Safety check for CORS on error response
     const origin = req.headers.origin;
     const allowedOrigins = ["http://localhost:3000", "https://musicshoot.vercel.app"];
