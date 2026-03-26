@@ -125,8 +125,9 @@ export const useMusicStore = create<MusicStore>((set) => {
                     songs: state.songs.map((song) => song._id === id ? response.data.song : song)
                 }));
                 toast.success("Song updated successfully");
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "Error updating song");
+            } catch (error: unknown) {
+                const e = error as { response?: { data?: { message?: string } } };
+                toast.error(e.response?.data?.message || "Error updating song");
             } finally {
                 set({ isLoading: false });
             }
@@ -142,8 +143,9 @@ export const useMusicStore = create<MusicStore>((set) => {
                     albums: state.albums.map((album) => album._id === id ? response.data.album : album)
                 }));
                 toast.success("Album updated successfully");
-            } catch (error: any) {
-                toast.error(error.response?.data?.message || "Error updating album");
+            } catch (error: unknown) {
+                const e = error as { response?: { data?: { message?: string } } };
+                toast.error(e.response?.data?.message || "Error updating album");
             } finally {
                 set({ isLoading: false });
             }

@@ -41,8 +41,9 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
         try {
             const response = await axiosInstance.get('/playlists');
             set({ playlists: response.data });
-        } catch (error: any) {
-            const message = error.response?.data?.message || "Error fetching playlists";
+        } catch (error: unknown) {
+            const e = error as { response?: { data?: { message?: string } } };
+            const message = e.response?.data?.message || "Error fetching playlists";
             set({ error: message });
             toast.error(message);
         } finally {
@@ -55,8 +56,9 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
         try {
             const response = await axiosInstance.get(`/playlists/${id}`);
             set({ currentPlaylist: response.data });
-        } catch (error: any) {
-            const message = error.response?.data?.message || "Error fetching playlist";
+        } catch (error: unknown) {
+            const e = error as { response?: { data?: { message?: string } } };
+            const message = e.response?.data?.message || "Error fetching playlist";
             set({ error: message });
             toast.error(message);
         } finally {
@@ -70,8 +72,9 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
             const response = await axiosInstance.post('/playlists', data);
             set((state) => ({ playlists: [...state.playlists, response.data] }));
             toast.success("Playlist created successfully");
-        } catch (error: any) {
-            const message = error.response?.data?.message || "Error creating playlist";
+        } catch (error: unknown) {
+            const e = error as { response?: { data?: { message?: string } } };
+            const message = e.response?.data?.message || "Error creating playlist";
             toast.error(message);
         } finally {
             set({ isLoading: false });
@@ -87,8 +90,9 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
                 currentPlaylist: state.currentPlaylist?._id === id ? response.data : state.currentPlaylist
             }));
             toast.success("Playlist updated successfully");
-        } catch (error: any) {
-            const message = error.response?.data?.message || "Error updating playlist";
+        } catch (error: unknown) {
+            const e = error as { response?: { data?: { message?: string } } };
+            const message = e.response?.data?.message || "Error updating playlist";
             toast.error(message);
         } finally {
             set({ isLoading: false });
@@ -104,8 +108,9 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
                 currentPlaylist: state.currentPlaylist?._id === id ? null : state.currentPlaylist
             }));
             toast.success("Playlist deleted successfully");
-        } catch (error: any) {
-            const message = error.response?.data?.message || "Error deleting playlist";
+        } catch (error: unknown) {
+            const e = error as { response?: { data?: { message?: string } } };
+            const message = e.response?.data?.message || "Error deleting playlist";
             toast.error(message);
         } finally {
             set({ isLoading: false });
@@ -120,8 +125,9 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
                 currentPlaylist: state.currentPlaylist?._id === playlistId ? response.data : state.currentPlaylist
             }));
             toast.success("Song added to playlist");
-        } catch (error: any) {
-            const message = error.response?.data?.message || "Error adding song";
+        } catch (error: unknown) {
+            const e = error as { response?: { data?: { message?: string } } };
+            const message = e.response?.data?.message || "Error adding song";
             toast.error(message);
         }
     },
@@ -134,8 +140,9 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
                 currentPlaylist: state.currentPlaylist?._id === playlistId ? response.data : state.currentPlaylist
             }));
             toast.success("Song removed from playlist");
-        } catch (error: any) {
-            const message = error.response?.data?.message || "Error removing song";
+        } catch (error: unknown) {
+            const e = error as { response?: { data?: { message?: string } } };
+            const message = e.response?.data?.message || "Error removing song";
             toast.error(message);
         }
     },
@@ -151,7 +158,7 @@ export const usePlaylistStore = create<PlaylistStore>((set, get) => ({
 
         try {
             await axiosInstance.put(`/playlists/${playlistId}`, { songs: songIds });
-        } catch (error: any) {
+        } catch {
             // Rollback on error
             set({ currentPlaylist: previousPlaylist });
             toast.error("Failed to save new order");

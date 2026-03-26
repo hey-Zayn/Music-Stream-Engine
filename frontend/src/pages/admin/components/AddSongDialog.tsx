@@ -16,9 +16,26 @@ import { Plus, Upload, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
+interface JSTag {
+	tags: {
+		title?: string;
+		artist?: string;
+		album?: string;
+		picture?: {
+			data: number[];
+			format: string;
+		};
+	};
+}
+
 declare global {
   interface Window {
-    jsmediatags: any;
+    jsmediatags: {
+		read: (file: File, options: {
+			onSuccess: (tag: JSTag) => void;
+			onError: (error: { message: string }) => void;
+		}) => void;
+	};
   }
 }
 
@@ -77,7 +94,7 @@ const AddSongDialog = () => {
 		// Read metadata using jsmediatags
 		if (window.jsmediatags) {
 			window.jsmediatags.read(file, {
-				onSuccess: (tag: any) => {
+				onSuccess: (tag: JSTag) => {
 					const { tags } = tag;
 					setNewSong((prev) => ({
 						...prev,
@@ -104,7 +121,7 @@ const AddSongDialog = () => {
 							});
 					}
 				},
-				onError: (error: any) => {
+				onError: (error: { message: string }) => {
 					console.error("Error reading audio tags:", error);
 					toast.error("Failed to read audio metadata.");
 				},
