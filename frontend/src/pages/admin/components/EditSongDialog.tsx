@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useMusicStore } from "@/store/useMusicStore";
+import { useSongStore } from "@/store/useSongStore";
+import { useAlbumStore } from "@/store/useAlbumStore";
 import { Edit, Upload } from "lucide-react";
 import { useState, useRef } from "react";
 import toast from "react-hot-toast";
@@ -21,7 +22,8 @@ interface EditSongDialogProps {
 }
 
 const EditSongDialog = ({ song }: EditSongDialogProps) => {
-	const { albums, isLoading, updateSong } = useMusicStore();
+	const { isLoading, updateSong } = useSongStore();
+	const { albums } = useAlbumStore();
 	const [open, setOpen] = useState(false);
 	const [formData, setFormData] = useState({
 		title: song.title,

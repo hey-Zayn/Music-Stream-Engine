@@ -9,7 +9,7 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useMusicStore } from "@/store/useMusicStore";
+import { useAlbumStore } from "@/store/useAlbumStore";
 import { Edit, Upload } from "lucide-react";
 import { useState, useRef } from "react";
 import toast from "react-hot-toast";
@@ -20,7 +20,7 @@ interface EditAlbumDialogProps {
 }
 
 const EditAlbumDialog = ({ album }: EditAlbumDialogProps) => {
-	const { isLoading, updateAlbum } = useMusicStore();
+	const { isLoading, updateAlbum } = useAlbumStore();
 	const [open, setOpen] = useState(false);
 	const [formData, setFormData] = useState({
 		title: album.title,

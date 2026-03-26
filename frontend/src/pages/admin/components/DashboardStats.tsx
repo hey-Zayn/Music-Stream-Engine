@@ -1,10 +1,10 @@
-import { useMusicStore } from '@/store/useMusicStore';
+import { useStatsStore } from '@/store/useStatsStore';
 import StatsCard from './StatsCard';
 import { Library, ListMusic, Users2 } from "lucide-react";
 
 
 const DashboardStats = () => {
-  const { stats, isLoading } = useMusicStore();
+  const { stats, isStatsLoading: isLoading } = useStatsStore();
 
   if (isLoading || !stats) {
     return (

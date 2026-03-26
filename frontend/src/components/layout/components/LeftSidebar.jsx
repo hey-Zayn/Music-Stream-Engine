@@ -6,7 +6,7 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import PlaylistSkeleton from '../../skeletons/PlaylistSkeleton.jsx'
-import { useMusicStore } from '../../../store/useMusicStore.js'
+import { useAlbumStore } from '../../../store/useAlbumStore'
 import { usePlaylistStore } from '../../../store/usePlaylistStore'
 import { Plus } from 'lucide-react'
 import CreatePlaylistDialog from './CreatePlaylistDialog'
@@ -21,7 +21,7 @@ const LeftSidebar = () => {
     // const [playlists, SetPlaylists] = useState([]);
 
     // useMusicStore
-    const { albums, isLoading: isMusicLoading, fetchAlbums } = useMusicStore();
+    const { albums, isLoading: isMusicLoading, fetchAlbums } = useAlbumStore();
     const { playlists, isLoading: isPlaylistLoading, fetchPlaylists } = usePlaylistStore();
 
     useEffect(() => {

@@ -50,7 +50,7 @@ const FriendsActivity = () => {
 								onClick={() => handleUserClick(user)}
 								className='cursor-pointer hover:bg-zinc-800/50 p-3 rounded-md transition-colors group'
 							>
-								<div className='flex items-start gap-3'>
+								<div className='flex items-start gap-3 min-w-0'>
 									<div className='relative'>
 										<Avatar className='size-10 border border-zinc-800'>
 											<AvatarImage src={user.imageUrl} alt={user.fullName} />
@@ -65,13 +65,13 @@ const FriendsActivity = () => {
 									</div>
 
 									<div className='flex-1 min-w-0'>
-										<div className='flex items-center gap-2'>
-											<span className='font-medium text-sm text-white'>{user.fullName}</span>
+										<div className='flex items-center gap-2 min-w-0'>
+											<span className='font-medium text-sm text-white truncate'>{user.fullName}</span>
 											{isPlaying && <Music className='size-3.5 text-emerald-400 shrink-0' />}
 										</div>
 
 										{isPlaying ? (
-											<div className='mt-1'>
+											<div className='mt-1 min-w-0'>
 												<div className='mt-1 text-sm text-white font-medium truncate'>
 													{activity.replace("Playing ", "").split(" by ")[0]}
 												</div>

@@ -6,12 +6,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Album, Music } from 'lucide-react';
 import SongsTabContent from './components/SongsTabContent';
 import AlbumsTabContent from './components/AlbumsTabContent';
-import { useMusicStore } from '@/store/useMusicStore';
+import { useSongStore } from '@/store/useSongStore';
+import { useAlbumStore } from '@/store/useAlbumStore';
+import { useStatsStore } from '@/store/useStatsStore';
 
 const AdminPage = () => {
 
     const { isLoading } = useAuthStore();
-    const { fetchStats, fetchSongs, fetchAlbums } = useMusicStore();
+    const { fetchStats } = useStatsStore();
+    const { fetchSongs } = useSongStore();
+    const { fetchAlbums } = useAlbumStore();
     useEffect(() => {
         fetchStats(true);
         fetchSongs(true);
@@ -20,8 +24,8 @@ const AdminPage = () => {
 
     if (isLoading) return <div>Loading...</div>
     return (
-        <div className='min-h-screen bg-gradient-to-b from-zinc-900 via-zinc-900
-   to-black text-zinc-100 p-8'>
+        <div className='min-h-screen bg-linear-to-b from-zinc-900 via-zinc-900
+   to-black text-zinc-100 p-4 md:p-8'>
             <Header />
             <DashboardStats />
             <div>

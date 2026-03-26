@@ -1,26 +1,9 @@
+const { getPublicId, uploadToCloudinary } = require("../lib/cloudinaryHelper");
+const { isAdminUser } = require("../middleware/auth.middleware");
 const Song = require("../models/song.model");
 const Album = require("../models/album.model");
 const cloudinary = require("../lib/cloudinary");
-
-const getPublicId = (url) => {
-  if (!url) return null;
-  const parts = url.split("/");
-  const fileName = parts.pop();
-  const publicId = fileName.split(".")[0];
-  return publicId;
-};
-
-const uploadToCloudinary = async (file) => {
-  try {
-    const result = await cloudinary.uploader.upload(file.tempFilePath, {
-      resource_type: "auto",
-    });
-    return result.secure_url;
-  } catch (err) {
-    console.log("Error in uploadToCloudinary:", err);
-    throw new Error(err.message || "Cloudinary upload failed");
-  }
-};
+const CacheManager = require("../lib/cacheManager");
 
 const getRandomSongs = async (size) => {
     return await Song.aggregate([
@@ -37,7 +20,7 @@ const getRandomSongs = async (size) => {
     ]);
 };
 
-const getAllSongs = async (req, res, next) => {
+const getSongs = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
@@ -86,7 +69,11 @@ const getSingleSong = async (req, res, next) => {
 
 const getFeaturedSongs = async (req, res, next) => {
     try {
-        const songs = await getRandomSongs(8);
+        const cacheKey = "music-app:songs:featured";
+        const songs = await CacheManager.getOrFetch(cacheKey, 1800, async () => {
+            return await getRandomSongs(8);
+        });
+
         res.status(200).json({
             success: true,
             message: "Featured songs fetched successfully",
@@ -99,7 +86,11 @@ const getFeaturedSongs = async (req, res, next) => {
 
 const getSongsForYou = async (req, res, next) => {
     try {
-        const songs = await getRandomSongs(4);
+        const cacheKey = "music-app:songs:for-you";
+        const songs = await CacheManager.getOrFetch(cacheKey, 1800, async () => {
+            return await getRandomSongs(4);
+        });
+
         res.status(200).json({
             success: true,
             message: "Songs for you fetched successfully",
@@ -112,7 +103,11 @@ const getSongsForYou = async (req, res, next) => {
 
 const getTrendingSongs = async (req, res, next) => {
     try {
-        const songs = await getRandomSongs(4);
+        const cacheKey = "music-app:songs:trending";
+        const songs = await CacheManager.getOrFetch(cacheKey, 1800, async () => {
+            return await getRandomSongs(4);
+        });
+
         res.status(200).json({
             success: true,
             message: "Trending songs fetched successfully",
@@ -193,11 +188,7 @@ const deleteSong = async (req, res, next) => {
         // Actually, the user rules say "everyone can upload", but usually we want some restriction on deletion.
         // I'll allow the creator to delete.
         if (song.creator && song.creator !== userId) {
-             // We can check admin status here too if we want to allow admins to delete anything
-             const { clerkClient } = require('@clerk/express');
-             const currentUser = await clerkClient.users.getUser(userId);
-             const primaryEmail = currentUser?.primaryEmailAddress?.emailAddress;
-             const isAdmin = process.env.ADMIN_EMAIL && primaryEmail && process.env.ADMIN_EMAIL === primaryEmail;
+             const isAdmin = await isAdminUser(userId);
              
              if (!isAdmin) {
                 return res.status(403).json({ message: "Unauthorized to delete this song" });
@@ -265,7 +256,7 @@ const updateSong = async (req, res, next) => {
 };
 
 module.exports = {
-    getAllSongs,
+    getSongs,
     getFeaturedSongs,
     getSongsForYou,
     getTrendingSongs,

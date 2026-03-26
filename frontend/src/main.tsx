@@ -29,7 +29,28 @@ createRoot(document.getElementById('root')!).render(
           <Sentry.ErrorBoundary fallback={<div>An error has occurred</div>} showDialog>
             <App/>
             <Toaster
-              position='top-right'
+              position='top-center'
+              toastOptions={{
+                duration: 3000,
+                style: {
+                  background: '#18181b', // zinc-900
+                  color: '#fff',
+                  border: '1px solid #27272a', // zinc-800
+                  borderRadius: '8px',
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#10b981', // emerald-500
+                    secondary: '#fff',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444', // red-500
+                    secondary: '#fff',
+                  },
+                },
+              }}
             />
           </Sentry.ErrorBoundary>
         </SentryRoutes>
