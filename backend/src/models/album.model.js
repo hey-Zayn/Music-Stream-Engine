@@ -21,7 +21,10 @@ const albumSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Song',
     }],
-
+    creator: {
+        type: String, // clerkId
+        required: false,
+    },
 },{timestamps: true});
 
 const Album = mongoose.model('Album', albumSchema);

@@ -26,6 +26,10 @@ const songSchema = new mongoose.Schema({
         ref: 'Album',
         required: false,
     },
+    creator: {
+        type: String, // clerkId
+        required: false, // Optional for existing seeded data
+    },
 },{timestamps: true});
 
 

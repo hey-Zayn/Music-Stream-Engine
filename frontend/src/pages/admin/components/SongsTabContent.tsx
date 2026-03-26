@@ -4,9 +4,14 @@ import AddSongDialog from "./AddSongDialog";
 import SongsTable from "./SongsTable";
 
 
+import { useMusicStore } from "@/store/useMusicStore";
+import NoContent from "./NoContent";
+
 const SongsTabContent = () => {
+	const { songs, isSongsLoading } = useMusicStore();
+
 	return (
-		<Card>
+		<Card className='bg-zinc-900/50 border-zinc-800/50'>
 			<CardHeader>
 				<div className='flex items-center justify-between'>
 					<div>
@@ -20,7 +25,11 @@ const SongsTabContent = () => {
 				</div>
 			</CardHeader>
 			<CardContent>
-				<SongsTable />
+				{songs.length === 0 && !isSongsLoading ? (
+					<NoContent type='songs' />
+				) : (
+					<SongsTable />
+				)}
 			</CardContent>
 		</Card>
 	);

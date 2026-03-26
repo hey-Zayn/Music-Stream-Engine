@@ -1,9 +1,11 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { LayoutDashboard } from 'lucide-react'
+import { LayoutDashboard, MessageCircle } from 'lucide-react'
 import { SignedIn, SignedOut, SignInButton, SignOutButton, UserAvatar, UserButton } from '@clerk/clerk-react'
 import SignInOAuth from './SignInOAuth'
-import { useAuthStore } from '@/store/useAuthStore'
+import { useAuthStore } from "../../store/useAuthStore";
+import AddSongDialog from "@/pages/admin/components/AddSongDialog";
+import AddAlbumDialog from "@/pages/admin/components/AddAlbumDialog";
 import { buttonVariants } from './button-variants'
 import {cn} from "@/lib/utils"
 
@@ -18,16 +20,18 @@ const Topbar = () => {
               <img src="./spotify.png" alt="" className="w-8"/>
             </div>
             <div className='flex items-center gap-2'>
-                {
-                    isAdmin && (
-                        <Link to={'/admin'} className={cn(
-                            buttonVariants({variant:"outline"})
-                        )}>
-                            <LayoutDashboard />
-                            Admin Dashboard
-                        </Link>
-                    )
-                }
+                <SignedIn>
+                    <Link to={'/dashboard'} className={cn(
+                        buttonVariants({variant:"outline"})
+                    )}>
+                        <LayoutDashboard className='size-4 mr-2' />
+                        Dashboard
+                    </Link>
+                    <Link to={"/chat"} className={cn(buttonVariants({ variant: "outline" }))}>
+                        <MessageCircle className="size-4 mr-2" />
+                        Chat
+                    </Link>
+                </SignedIn>
                 {/* <SignedIn>
                     <SignOutButton />
                 </SignedIn> */}

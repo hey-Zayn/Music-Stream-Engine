@@ -2,13 +2,14 @@ import { axiosInstance } from '@/lib/axios'
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
-import { useAuthStore } from '@/store/useAuthStore';
+// import { useAuthStore } from '@/store/useAuthStore';
 import { useChatStore } from '@/store/useChatStore';
 
-const updateApiToken = (token: string | null) => {
-    if (token) axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    else delete axiosInstance.defaults.headers.common["Authorization"];
-};
+// Replaced updateApiToken with an Axios interceptor pattern for fresh tokens
+// const updateApiToken = (token: string | null) => {
+//     if (token) axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+//     else delete axiosInstance.defaults.headers.common["Authorization"];
+// };
 
 
 
@@ -16,35 +17,44 @@ const updateApiToken = (token: string | null) => {
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const { getToken, userId } = useAuth();
     const [loading, setLoading] = useState(true);
-    const { checkAdminStatus } = useAuthStore()
+    // const { checkAdminStatus } = useAuthStore()
     const { initSocket, disconnectSocket } = useChatStore();
     useEffect(() => {
+        const interceptor = axiosInstance.interceptors.request.use(
+            async (config) => {
+                try {
+                    const token = await getToken();
+                    if (token) {
+                        config.headers.Authorization = `Bearer ${token}`;
+                    }
+                } catch (error) {
+                    console.error("Error setting auth token:", error);
+                }
+                return config;
+            },
+            (error) => Promise.reject(error)
+        );
+
         const initAuth = async () => {
             try {
-                const token = await getToken();
-                // set the Authorization header first so subsequent requests include the token
-                updateApiToken(token);
-                if (token) {
-                    await checkAdminStatus();
-                    //init socket
-                    if (userId) {
-                        initSocket(userId);
-                    }
+                if (userId) {
+                    initSocket(userId);
                 }
-
             } catch (error) {
-                updateApiToken(null);
-                console.log("Error in auth provider", error);
+                console.log("Error in auth provider init:", error);
             } finally {
                 setLoading(false);
             }
-        }
+        };
+
         initAuth();
 
-
-        //clean up function
-        return () => disconnectSocket();
-    }, [getToken, checkAdminStatus, userId, initSocket, disconnectSocket]);
+        // Clean up: disconnect socket AND remove interceptor
+        return () => {
+            disconnectSocket();
+            axiosInstance.interceptors.request.eject(interceptor);
+        };
+    }, [getToken, userId, initSocket, disconnectSocket]);
 
     if (loading) {
         return (

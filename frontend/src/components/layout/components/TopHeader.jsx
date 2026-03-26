@@ -105,16 +105,14 @@ const TopHeader = () => {
                     </Tooltip>
                 </div>
                 <div className='flex items-center gap-2'>
-                    {
-                        isAdmin && (
-                            <Link to={'/admin'} className={cn(
-                                buttonVariants({ variant: "outline" })
-                            )}>
-                                <LayoutDashboard />
-                                Admin Dashboard
-                            </Link>
-                        )
-                    }
+                    <SignedIn>
+                        <Link to={'/dashboard'} className={cn(
+                            buttonVariants({ variant: "outline" })
+                        )}>
+                            <LayoutDashboard className='size-4 mr-2' />
+                            Dashboard
+                        </Link>
+                    </SignedIn>
                     {/* <SignedIn>
                     <SignOutButton />
                 </SignedIn> */}

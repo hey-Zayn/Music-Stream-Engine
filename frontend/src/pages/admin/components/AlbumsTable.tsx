@@ -2,14 +2,20 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useMusicStore } from "@/store/useMusicStore";
 import { Calendar, Music, Trash2 } from "lucide-react";
-import { useEffect } from "react";
+import EditAlbumDialog from "./EditAlbumDialog";
 
 const AlbumsTable = () => {
-	const { albums, deleteAlbum, fetchAlbums } = useMusicStore();
+	const { albums, deleteAlbum, isLoading } = useMusicStore();
+	
+	if (isLoading) {
+		return (
+			<div className='flex items-center justify-center py-8'>
+				<div className='text-zinc-400'>Loading albums...</div>
+			</div>
+		);
+	}
 
-	useEffect(() => {
-		fetchAlbums();
-	}, [fetchAlbums]);
+	// useEffect removed as parent AdminPage handles fetching with proper filtering
 
 	return (
 		<Table>
@@ -24,7 +30,14 @@ const AlbumsTable = () => {
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{albums.map((album) => (
+				{albums.length === 0 ? (
+					<TableRow>
+						<TableCell colSpan={6} className='h-24 text-center text-zinc-500'>
+							No albums found. Create your first album!
+						</TableCell>
+					</TableRow>
+				) : (
+					albums.map((album) => (
 					<TableRow key={album._id} className='hover:bg-zinc-800/50'>
 						<TableCell>
 							<img src={album.imageUrl} alt={album.title} className='w-10 h-10 rounded object-cover' />
@@ -44,7 +57,8 @@ const AlbumsTable = () => {
 							</span>
 						</TableCell>
 						<TableCell className='text-right'>
-							<div className='flex gap-2 justify-end'>
+							<div className='flex gap-2 justify-end items-center'>
+								<EditAlbumDialog album={album} />
 								<Button
 									variant='ghost'
 									size='sm'
@@ -56,7 +70,8 @@ const AlbumsTable = () => {
 							</div>
 						</TableCell>
 					</TableRow>
-				))}
+					))
+				)}
 			</TableBody>
 		</Table>
 	);

@@ -1,6 +1,7 @@
 import { useMusicStore } from '@/store/useMusicStore'
 import FeaturedGridSkeleton from '@/components/skeletons/FeaturedGridSkeleton'
 import PlayButton from './PlayButton'
+import AddToPlaylistDialog from '@/components/playlist/AddToPlaylistDialog'
 
 
 const FeaturedSection = () => {
@@ -26,7 +27,8 @@ const FeaturedSection = () => {
 						<p className='font-medium truncate'>{song.title}</p>
 						{/* <p className='text-sm text-zinc-400 truncate'>{song.artist}</p> */}
 					</div>
-					<div className=''>
+					<div className='flex items-center px-2' onClick={(e) => e.stopPropagation()}>
+                        <AddToPlaylistDialog songId={song._id} />
 						<PlayButton  song={song}/>
 					</div>
 				</div>

@@ -1,6 +1,7 @@
 import type { Song } from "@/types";
 import SectionGridSkeleton from './SectionGridSkeleton'
 import { Button } from "@/components/ui/button";
+import AddToPlaylistDialog from "@/components/playlist/AddToPlaylistDialog";
 
 
 type SectionGridProps = {
@@ -36,6 +37,9 @@ const SectionGrid = ({ title, songs, isLoading }: SectionGridProps) => {
 								/>
 							</div>
 							{/* <PlayButton song={song} /> */}
+                            <div className='absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0'>
+                                <AddToPlaylistDialog songId={song._id} />
+                            </div>
 						</div>
 						<h3 className='font-medium mb-2 truncate'>{song.title}</h3>
 						<p className='text-sm text-zinc-400 truncate'>{song.artist}</p>

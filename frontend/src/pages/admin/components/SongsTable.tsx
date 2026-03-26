@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useMusicStore } from "@/store/useMusicStore";
 import { Calendar, Trash2 } from "lucide-react";
+import AddToPlaylistDialog from "@/components/playlist/AddToPlaylistDialog";
+import EditSongDialog from "./EditSongDialog";
 
 const SongsTable = () => {
-    const { songs, isLoading, error, deleteSong } = useMusicStore();
+    const { songs, isSongsLoading, error, deleteSong } = useMusicStore();
     // const deleteSong = false;
-    if (isLoading) {
+    if (isSongsLoading) {
         return (
             <div className='flex items-center justify-center py-8'>
                 <div className='text-zinc-400'>Loading songs...</div>
@@ -35,7 +37,14 @@ const SongsTable = () => {
             </TableHeader>
 
             <TableBody>
-                {songs.map((song) => (
+                {songs.length === 0 ? (
+                    <TableRow>
+                        <TableCell colSpan={5} className='h-24 text-center text-zinc-500'>
+                            No music found. Start by uploading some!
+                        </TableCell>
+                    </TableRow>
+                ) : (
+                    songs.map((song) => (
                     <TableRow key={song._id} className='hover:bg-zinc-800/50'>
                         <TableCell>
                             <img src={song.imageUrl} alt={song.title} className='size-10 rounded object-cover' />
@@ -50,7 +59,9 @@ const SongsTable = () => {
                         </TableCell>
 
                         <TableCell className='text-right'>
-                            <div className='flex gap-2 justify-end'>
+                            <div className='flex gap-2 justify-end items-center'>
+                                <AddToPlaylistDialog songId={song._id} />
+                                <EditSongDialog song={song} />
                                 <Button
                                     variant={"ghost"}
                                     size={"sm"}
@@ -62,7 +73,8 @@ const SongsTable = () => {
                             </div>
                         </TableCell>
                     </TableRow>
-                ))}
+                    ))
+                )}
             </TableBody>
         </Table>
     );
