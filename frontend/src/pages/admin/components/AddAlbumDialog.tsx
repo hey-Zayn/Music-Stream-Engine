@@ -13,6 +13,7 @@ import { Plus, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useMusicStore } from "@/store/useMusicStore";
+import { axiosInstance } from "@/lib/axios";
 
 const AddAlbumDialog = () => {
 	const [albumDialogOpen, setAlbumDialogOpen] = useState(false);

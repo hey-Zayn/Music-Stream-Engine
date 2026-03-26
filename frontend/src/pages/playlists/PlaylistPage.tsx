@@ -12,6 +12,7 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    DragEndEvent,
 } from "@dnd-kit/core";
 import {
     arrayMove,
@@ -56,12 +57,12 @@ const PlaylistPage = () => {
         playAlbum(currentPlaylist.songs, index);
     };
 
-    const handleDragEnd = (event: { active: { id: string }; over: { id: string } | null }) => {
+    const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
 
         if (over && active.id !== over.id) {
-            const oldIndex = currentPlaylist.songs.findIndex((s) => s._id === active.id);
-            const newIndex = currentPlaylist.songs.findIndex((s) => s._id === over.id);
+            const oldIndex = currentPlaylist.songs.findIndex((s) => s._id === active.id.toString());
+            const newIndex = currentPlaylist.songs.findIndex((s) => s._id === over.id.toString());
 
             const newSongs = arrayMove(currentPlaylist.songs, oldIndex, newIndex);
             reorderSongs(currentPlaylist._id, newSongs);
