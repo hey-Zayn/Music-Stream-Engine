@@ -1,10 +1,10 @@
 const express = require('express');
-const { getAllSongs, getSongsForYou, getFeaturedSongs, getTrendingSongs, getSingleSong, createSong, deleteSong, updateSong } = require('../controllers/song.controller');
+const { getSongs, getSongsForYou, getFeaturedSongs, getTrendingSongs, getSingleSong, createSong, deleteSong, updateSong } = require('../controllers/song.controller');
 const { protectRoute } = require('../middleware/auth.middleware');
 const router = express.Router();
 
 // Sample route to get all users
-router.get('/', protectRoute, getAllSongs);
+router.get('/', protectRoute, getSongs);
 router.get('/featured', getFeaturedSongs);
 router.get('/made-for-you', getSongsForYou);
 router.get('/trending', getTrendingSongs);

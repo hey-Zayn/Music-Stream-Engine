@@ -11,7 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { axiosInstance } from "@/lib/axios";
-import { useMusicStore } from "@/store/useMusicStore";
+import { useSongStore } from "@/store/useSongStore";
+import { useAlbumStore } from "@/store/useAlbumStore";
 import { Plus, Upload, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -47,7 +48,8 @@ interface NewSong {
 }
 
 const AddSongDialog = () => {
-	const { albums, isLoading, fetchAlbums, fetchSongs } = useMusicStore();
+	const { isLoading, fetchSongs } = useSongStore();
+	const { albums, fetchAlbums } = useAlbumStore();
 	const [songDialogOpen, setSongDialogOpen] = useState(false);
 	const [newSong, setNewSong] = useState<NewSong>({
 		title: "",
@@ -64,6 +66,9 @@ const AddSongDialog = () => {
 	const [imagePreview, setImagePreview] = useState<string | null>(null);
 	const [uploadProgress, setUploadProgress] = useState(0);
 	const [uploadDetails, setUploadDetails] = useState({ loaded: 0, total: 0 });
+	
+	const [isDraggingImage, setIsDraggingImage] = useState(false);
+	const [isDraggingAudio, setIsDraggingAudio] = useState(false);
 
 	const audioInputRef = useRef<HTMLInputElement>(null);
 	const imageInputRef = useRef<HTMLInputElement>(null);
@@ -246,8 +251,21 @@ const AddSongDialog = () => {
 
 					{/* image upload area */}
 					<div
-						className='flex items-center justify-center p-6 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer'
+						className={`flex items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+							isDraggingImage ? "border-emerald-500 bg-emerald-500/10" : "border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800/50"
+						}`}
 						onClick={() => imageInputRef.current?.click()}
+						onDragOver={(e) => { e.preventDefault(); setIsDraggingImage(true); }}
+						onDragLeave={() => setIsDraggingImage(false)}
+						onDrop={(e) => {
+							e.preventDefault();
+							setIsDraggingImage(false);
+							if (e.dataTransfer.files && e.dataTransfer.files[0] && e.dataTransfer.files[0].type.startsWith("image/")) {
+								setFiles((prev) => ({ ...prev, image: e.dataTransfer.files[0] }));
+							} else {
+								toast.error("Please drop an image file.");
+							}
+						}}
 					>
 						<div className='text-center'>
 							{files.image ? (
@@ -275,10 +293,33 @@ const AddSongDialog = () => {
 					{/* Audio upload */}
 					<div className='space-y-2'>
 						<label className='text-sm font-medium'>Audio File</label>
-						<div className='flex items-center gap-2'>
-							<Button variant='outline' onClick={() => audioInputRef.current?.click()} className='w-full'>
-								{files.audio ? files.audio.name.slice(0, 20) : "Choose Audio File"}
-							</Button>
+						<div 
+							className={`flex items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+								isDraggingAudio ? "border-emerald-500 bg-emerald-500/10" : "border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800/50"
+							}`}
+							onClick={() => audioInputRef.current?.click()}
+							onDragOver={(e) => { e.preventDefault(); setIsDraggingAudio(true); }}
+							onDragLeave={() => setIsDraggingAudio(false)}
+							onDrop={(e) => {
+								e.preventDefault();
+								setIsDraggingAudio(false);
+								if (e.dataTransfer.files && e.dataTransfer.files[0] && e.dataTransfer.files[0].type.startsWith("audio/")) {
+									handleAudioSelect(e.dataTransfer.files[0]);
+								} else {
+									toast.error("Please drop an audio file.");
+								}
+							}}
+						>
+							{files.audio ? (
+								<div className="text-sm text-emerald-500 truncate text-center">
+									{files.audio.name}
+								</div>
+							) : (
+								<div className="text-sm text-zinc-400 text-center flex flex-col items-center">
+									<Upload className="h-4 w-4 mb-2" />
+									Click or drag audio file here
+								</div>
+							)}
 						</div>
 					</div>
 

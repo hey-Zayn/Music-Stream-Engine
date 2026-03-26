@@ -1,53 +1,53 @@
+const { getPublicId, uploadToCloudinary } = require("../lib/cloudinaryHelper");
+const { isAdminUser } = require("../middleware/auth.middleware");
 const Album = require("../models/album.model");
 const Song = require("../models/song.model");
 const cloudinary = require("../lib/cloudinary");
+const CacheManager = require("../lib/cacheManager");
 
-const getPublicId = (url) => {
-  if (!url) return null;
-  const parts = url.split("/");
-  const fileName = parts.pop();
-  const publicId = fileName.split(".")[0];
-  return publicId;
-};
-
-const uploadToCloudinary = async (file) => {
-  try {
-    const result = await cloudinary.uploader.upload(file.tempFilePath, {
-      resource_type: "auto",
-    });
-    return result.secure_url;
-  } catch (err) {
-    console.log("Error in uploadToCloudinary:", err);
-    throw new Error(err.message || "Cloudinary upload failed");
-  }
-};
-
-const AllAlbums = async (req, res, next) => {
+const getAlbums = async (req, res, next) => {
     try {
-        const filter = {};
-        
-        // If user=true, only show their own albums
-        if (req.query.user === "true" && req.auth?.userId) {
-            filter.creator = req.auth.userId;
-        } else if (!req.query.all === "true") {
-            // Default behavior if not asking for "all" (and not an admin) could be to still filter by user
-            // or just allow discovery if intended.
-            // For now, let's keep it restricted to the creator if they are in a management context.
-            // But if it's for discovery (HomePage), they might not pass user=true.
-            // However, the dashboard ALWAYS passes user=true.
-        }
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const isUserOnly = req.query.user === "true" && req.auth?.userId;
+        const cacheKey = isUserOnly ? `music-app:albums:${req.auth.userId}:${page}:${limit}` : `music-app:albums:global:${page}:${limit}`;
 
-        const albums = await Album.find(filter);
+        const responseData = await CacheManager.getOrFetch(cacheKey, 900, async () => {
+             const skip = (page - 1) * limit;
+             const filter = {};
+             
+             if (isUserOnly) {
+                 filter.creator = req.auth.userId;
+             }
+
+             const albums = await Album.find(filter)
+                 .sort({ createdAt: -1 })
+                 .skip(skip)
+                 .limit(limit);
+
+             const total = await Album.countDocuments(filter);
+
+             return {
+                 success: true,
+                 albums,
+                 pagination: {
+                     total,
+                     page,
+                     limit,
+                     pages: Math.ceil(total / limit)
+                 }
+             };
+        });
+
         res.status(200).json({
-            success: true,
-            message: "All Albums",
-            albums
+            ...responseData,
+            message: "All Albums"
         })
     } catch (error) {
         next(error);
     }
 }
-const AllAlbumsById = async (req, res, next) => {
+const getAlbumById = async (req, res, next) => {
     try {
         const { albumId } = req.params;
         const album = await Album.findById(albumId).populate("songs");
@@ -80,7 +80,7 @@ const createAlbum = async (req, res, next) => {
             return res.status(400).json({ success: false, message: "Title and artist are required" });
         }
 
-        const imageUrl = await uploadToCloudinary(req.files.imageFile);
+        const imageUrl = await uploadToCloudinary(req.files.imageFile, "music-app/albums");
 
         const album = new Album({
             title,
@@ -109,10 +109,7 @@ const deleteAlbum = async (req, res, next) => {
         }
 
         if (album.creator && album.creator !== userId) {
-             const { clerkClient } = require('@clerk/express');
-             const currentUser = await clerkClient.users.getUser(userId);
-             const primaryEmail = currentUser?.primaryEmailAddress?.emailAddress;
-             const isAdmin = process.env.ADMIN_EMAIL && primaryEmail && process.env.ADMIN_EMAIL === primaryEmail;
+             const isAdmin = await isAdminUser(userId);
              
              if (!isAdmin) {
                 return res.status(403).json({ message: "Unauthorized to delete this album" });
@@ -169,7 +166,7 @@ const updateAlbum = async (req, res, next) => {
                     console.error("Cloudinary old album image deletion failed:", err);
                 }
             }
-            updatedData.imageUrl = await uploadToCloudinary(req.files.imageFile);
+            updatedData.imageUrl = await uploadToCloudinary(req.files.imageFile, "music-app/albums");
         }
 
         const updatedAlbum = await Album.findByIdAndUpdate(id, updatedData, { new: true });
@@ -180,8 +177,8 @@ const updateAlbum = async (req, res, next) => {
 };
 
 module.exports = {
-    AllAlbums,
-    AllAlbumsById,
+    getAlbums,
+    getAlbumById,
     createAlbum,
     deleteAlbum,
     updateAlbum,

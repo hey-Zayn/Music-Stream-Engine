@@ -1,2 +1,9 @@
 final_remediation_report.md
 analysis_report.md
+/plan/
+
+plan
+/plan/**
+plan/development-plan.md
+plan/remediation-plan.md
+/plan/

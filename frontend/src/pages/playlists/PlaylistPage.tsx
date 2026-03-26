@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { usePlaylistStore } from "@/store/usePlaylistStore";
 import { usePlayerStore } from "@/store/usePlayerStore";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Play, Clock, Trash2, Pause } from "lucide-react";
 import {
@@ -71,7 +70,6 @@ const PlaylistPage = () => {
 
     return (
         <div className="h-full bg-zinc-900">
-            <ScrollArea className="h-full">
                 {/* Header */}
                 <div className="relative h-64 md:h-80 flex items-end p-6 bg-gradient-to-b from-zinc-700 to-zinc-900">
                     <div className="flex flex-col md:flex-row gap-6 items-center md:items-end w-full">
@@ -156,7 +154,6 @@ const PlaylistPage = () => {
                         </div>
                     )}
                 </div>
-            </ScrollArea>
         </div>
     );
 };

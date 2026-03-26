@@ -4,11 +4,11 @@ import AddAlbumDialog from "./AddAlbumDialog";
 import AlbumsTable from "./AlbumsTable";
 
 
-import { useMusicStore } from "@/store/useMusicStore";
+import { useAlbumStore } from "@/store/useAlbumStore";
 import NoContent from "./NoContent";
 
 const AlbumsTabContent = () => {
-	const { albums, isLoading } = useMusicStore();
+	const { albums, isLoading } = useAlbumStore();
 
 	return (
 		<Card className='bg-zinc-900/50 border-zinc-800/50'>

@@ -1,27 +1,10 @@
 const clerk = require('@clerk/express');
 const Song = require("../models/song.model");
 const Album = require("../models/album.model");
-const cloudinary = require("../lib/cloudinary");
+const { getPublicId, uploadToCloudinary } = require("../lib/cloudinaryHelper");
+const CacheManager = require("../lib/cacheManager");
 
-const getPublicId = (url) => {
-  if (!url) return null;
-  const parts = url.split("/");
-  const fileName = parts.pop();
-  const publicId = fileName.split(".")[0];
-  return publicId;
-};
 
-const uploadToCloudinary = async (file) => {
-  try {
-    const result = await cloudinary.uploader.upload(file.tempFilePath, {
-      resource_type: "auto",
-    });
-    return result.secure_url;
-  } catch (err) {
-    console.log("Error in uploadToCloudinary:", err);
-    throw new Error(err.message || "Cloudinary upload failed");
-  }
-};
 
 const createSong = async (req, res, next) => {
   try {
@@ -45,8 +28,8 @@ const createSong = async (req, res, next) => {
     const audioFile = req.files.audioFile;
     const imageFile = req.files.imageFile;
 
-    const audioUrl = await uploadToCloudinary(audioFile);
-    const imageUrl = await uploadToCloudinary(imageFile);
+    const audioUrl = await uploadToCloudinary(audioFile, "music-app/songs");
+    const imageUrl = await uploadToCloudinary(imageFile, "music-app/songs");
 
     const song = new Song({
       title,
@@ -64,6 +47,12 @@ const createSong = async (req, res, next) => {
         $push: { songs: song._id },
       }, { new: true });
     }
+
+    // Invalidate caches
+    await CacheManager.del("music-app:stats:global");
+    if (song.creator) await CacheManager.del(`music-app:stats:${song.creator}`);
+    await CacheManager.del(["music-app:songs:featured", "music-app:songs:for-you", "music-app:songs:trending"]);
+    await CacheManager.purgePattern("music-app:albums:*"); // Clear any album listings as they may change counts or content
 
     res.status(201).json({
       success: true,
@@ -111,6 +100,12 @@ const deleteSong = async (req, res, next) => {
 
     await Song.findByIdAndDelete(id);
 
+    // Invalidate caches
+    await CacheManager.del("music-app:stats:global");
+    if (song.creator) await CacheManager.del(`music-app:stats:${song.creator}`);
+    await CacheManager.del(["music-app:songs:featured", "music-app:songs:for-you", "music-app:songs:trending"]);
+    await CacheManager.purgePattern("music-app:albums:*");
+
     res.status(200).json({ 
       success: true,
       message: "Song and associated media deleted successfully" 
@@ -140,7 +135,7 @@ const createAlbum = async (req, res, next) => {
     }
 
     const imageFile = req.files.imageFile;
-    const imageUrl = await uploadToCloudinary(imageFile);
+    const imageUrl = await uploadToCloudinary(imageFile, "music-app/albums");
 
     const album = new Album({
       title,
@@ -151,6 +146,11 @@ const createAlbum = async (req, res, next) => {
     });
 
     await album.save();
+
+    // Invalidate caches
+    await CacheManager.del("music-app:stats:global");
+    if (album.creator) await CacheManager.del(`music-app:stats:${album.creator}`);
+    await CacheManager.purgePattern("music-app:albums:*");
 
     res.status(201).json({
       success: true,
@@ -200,6 +200,12 @@ const deleteAlbum = async (req, res, next) => {
     
     await Song.deleteMany({ albumId: id });
     await Album.findByIdAndDelete(id);
+    
+    // Invalidate caches
+    await CacheManager.del("music-app:stats:global");
+    if (album.creator) await CacheManager.del(`music-app:stats:${album.creator}`);
+    await CacheManager.del(["music-app:songs:featured", "music-app:songs:for-you", "music-app:songs:trending"]);
+    await CacheManager.purgePattern("music-app:albums:*");
     
     res.status(200).json({ 
       success: true,

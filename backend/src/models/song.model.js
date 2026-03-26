@@ -28,7 +28,7 @@ const songSchema = new mongoose.Schema({
     },
     creator: {
         type: String, // clerkId
-        required: false, // Optional for existing seeded data
+        required: true,
     },
 },{timestamps: true});
 

@@ -7,7 +7,8 @@ export interface Song {
     audioUrl: string,
     duration: number,
     createdAt: string,
-    updateAt: string,
+    updatedAt: string,
+    creator?: string,
 }
 
 

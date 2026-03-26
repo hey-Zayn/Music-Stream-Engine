@@ -16,9 +16,10 @@ const PlaybackControls = () => {
 	const { currentSong, isPlaying, togglePlay, playNext, playPrevious, toggleRepeat, repeatMode, isShuffled, toggleShuffle } = usePlayerStore();
 
 	const [volume, setVolume] = useState(75);
+	const [prevVolume, setPrevVolume] = useState(75);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
-	const audioRef = useRef<HTMLAudioElement | null>(null)
+	const audioRef = useRef<HTMLAudioElement | null>(null);
 
 	useEffect(() => {
 		audioRef.current = document.querySelector("audio");
@@ -44,6 +45,45 @@ const PlaybackControls = () => {
 		}
 	}, [currentSong]);
 
+	// Keyboard shortcuts
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			// Ignore if user is typing in an input
+			if (document.activeElement?.tagName === "INPUT" || document.activeElement?.tagName === "TEXTAREA") {
+				return;
+			}
+
+			switch (e.code) {
+				case "Space":
+					e.preventDefault();
+					if (currentSong) togglePlay();
+					break;
+				case "ArrowRight":
+					e.preventDefault();
+					if (currentSong) playNext();
+					break;
+				case "ArrowLeft":
+					e.preventDefault();
+					if (currentSong) playPrevious();
+					break;
+				case "KeyM":
+					e.preventDefault();
+					if (volume > 0) {
+						setPrevVolume(volume);
+						setVolume(0);
+						if (audioRef.current) audioRef.current.volume = 0;
+					} else {
+						setVolume(prevVolume || 75);
+						if (audioRef.current) audioRef.current.volume = (prevVolume || 75) / 100;
+					}
+					break;
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [currentSong, togglePlay, playNext, playPrevious, volume, prevVolume]);
+
 
 	const handleSeek = (value: number[]) => {
 		if (audioRef.current) {
@@ -62,9 +102,11 @@ const PlaybackControls = () => {
 								alt={currentSong.title}
 								className='w-14 h-14 object-cover rounded-md'
 							/>
-							<div className='flex-1 min-w-0'>
-								<div className='font-medium truncate hover:underline cursor-pointer'>
-									{currentSong.title}
+							<div className='flex-1 min-w-0 overflow-hidden'>
+								<div className='font-medium cursor-pointer overflow-hidden whitespace-nowrap group'>
+                                    <div className="inline-block transition-transform duration-10000 ease-linear group-hover:animate-marquee">
+									    {currentSong.title}
+                                    </div>
 								</div>
 								<div className='text-sm text-zinc-400 truncate hover:underline cursor-pointer'>
 									{currentSong.artist}

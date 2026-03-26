@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useMusicStore } from '../../../store/useMusicStore'
+import { useStatsStore } from '../../../store/useStatsStore'
 import FeaturedSection from '../components/FeaturedSection'
 import { ScrollArea } from '@/components/ui/scroll-area';
 import SectionGrid from '../components/SectionGrid'
@@ -9,7 +9,7 @@ import { Button } from '../../../components/ui/button';
 
 
 const HomePage = () => {
-  const { isLoading, fetchFeaturedSongs, featuredSongs, fetchMadeForYou, fetchTrendingSongs, madeForYouSongs, trendingSongs } = useMusicStore()
+  const { isLoading, fetchFeaturedSongs, featuredSongs, fetchMadeForYou, fetchTrendingSongs, madeForYouSongs, trendingSongs } = useStatsStore()
 
   useEffect(() => {
     fetchFeaturedSongs()

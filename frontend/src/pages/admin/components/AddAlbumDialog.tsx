@@ -12,13 +12,14 @@ import { Input } from "@/components/ui/input";
 import { Plus, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useMusicStore } from "@/store/useMusicStore";
+import { useAlbumStore } from "@/store/useAlbumStore";
 import { axiosInstance } from "@/lib/axios";
 
 const AddAlbumDialog = () => {
 	const [albumDialogOpen, setAlbumDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const { fetchAlbums } = useMusicStore();
+	const [isDragging, setIsDragging] = useState(false);
+	const { fetchAlbums } = useAlbumStore();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const [newAlbum, setNewAlbum] = useState({
@@ -98,14 +99,27 @@ const AddAlbumDialog = () => {
 						className='hidden'
 					/>
 					<div
-						className='flex items-center justify-center p-6 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer'
+						className={`flex items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+							isDragging ? "border-emerald-500 bg-emerald-500/10" : "border-zinc-700 hover:border-zinc-600 hover:bg-zinc-800/50"
+						}`}
 						onClick={() => fileInputRef.current?.click()}
+						onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+						onDragLeave={() => setIsDragging(false)}
+						onDrop={(e) => {
+							e.preventDefault();
+							setIsDragging(false);
+							if (e.dataTransfer.files && e.dataTransfer.files[0] && e.dataTransfer.files[0].type.startsWith("image/")) {
+								setImageFile(e.dataTransfer.files[0]);
+							} else {
+								toast.error("Please drop an image file.");
+							}
+						}}
 					>
 						<div className='text-center'>
 							<div className='p-3 bg-zinc-800 rounded-full inline-block mb-2'>
 								<Upload className='h-6 w-6 text-zinc-400' />
 							</div>
-							<div className='text-sm text-zinc-400 mb-2'>
+							<div className='text-sm text-zinc-400 mb-2 truncate max-w-[200px] mx-auto'>
 								{imageFile ? imageFile.name : "Upload album artwork"}
 							</div>
 							<Button variant='outline' size='sm' className='text-xs'>

@@ -1,11 +1,11 @@
-import { useMusicStore } from '@/store/useMusicStore'
+import { useStatsStore } from '@/store/useStatsStore'
 import FeaturedGridSkeleton from '@/components/skeletons/FeaturedGridSkeleton'
 import PlayButton from './PlayButton'
 import AddToPlaylistDialog from '@/components/playlist/AddToPlaylistDialog'
 
 
 const FeaturedSection = () => {
-	const { isLoading, featuredSongs, error } = useMusicStore()
+	const { isLoading, featuredSongs, error } = useStatsStore()
     // console.log(featuredSongs);
     
     if (isLoading) return <FeaturedGridSkeleton />
@@ -23,7 +23,7 @@ const FeaturedSection = () => {
 						alt={song.title}
 						className='w-14 max-sm:w-20 h-14 max-sm:h-20 object-cover flex-shrink-0'
 					/>
-					<div className='flex-1 p-4'>
+					<div className='flex-1 p-4 min-w-0'>
 						<p className='font-medium truncate'>{song.title}</p>
 						{/* <p className='text-sm text-zinc-400 truncate'>{song.artist}</p> */}
 					</div>
