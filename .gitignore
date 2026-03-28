@@ -1,3 +1,8 @@
 final_remediation_report.md
 analysis_report.md
 /plan/
+/interview/
+
+# Root tooling (Husky, lint-staged, commitlint)
+/node_modules/
+/package-lock.json
