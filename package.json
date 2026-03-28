@@ -1,6 +1,7 @@
 {
   "name": "music-app-root",
   "private": true,
+  "type": "module",
   "scripts": {
     "prepare": "husky"
   },
