@@ -1,0 +1,4 @@
+echo "Running frontend tests..."
+cd frontend && npm test
+echo "Running backend tests..."
+cd ../backend && npm test
