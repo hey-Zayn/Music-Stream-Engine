@@ -10,6 +10,7 @@ const { initializeSocket } = require('./lib/socket');
 const Sentry = require("@sentry/node");
 require("./instrument.js");
 const Logger = require("./lib/logger");
+const { requestIdMiddleware, httpLogger } = require("./middleware/morgan.middleware");
 
 const app = express();
 
@@ -24,7 +25,11 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
 }));
 
-// 2. Body Parser & Middleware
+// 2. Request ID + HTTP Logger (Morgan → Winston)
+app.use(requestIdMiddleware);
+app.use(httpLogger);
+
+// 3. Body Parser & Middleware
 app.use(express.json());
 app.use(clerkMiddleware());
 

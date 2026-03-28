@@ -23,10 +23,12 @@
     "express": "^5.1.0",
     "express-fileupload": "^1.5.2",
     "mongoose": "^9.0.0",
+    "morgan": "^1.10.1",
     "nodemon": "^3.1.11",
     "redis": "^5.11.0",
     "socket.io": "^4.8.1",
-    "winston": "^3.19.0"
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "supertest": "^7.2.2",
