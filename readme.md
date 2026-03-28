@@ -80,7 +80,4 @@ This project was conceptualized, designed, and architected by **[Zayn (hey-Zayn)
 
 Contributions are welcome! If you're a developer looking to contribute to a high-scale music platform, feel free to fork the repo and submit a PR.
 
----
 
-## 📜 License
-Licensed under the **MIT License**. This project is open-source and free to use, provided that credit is attributed to the original creator. See the [LICENSE](LICENSE) file for more info.
