@@ -33,11 +33,11 @@ app.use(httpLogger);
 app.use(express.json());
 app.use(clerkMiddleware());
 
-const projectRoot = path.resolve();
+const tempDir = process.env.NODE_ENV === "production" ? "/tmp" : path.join(path.resolve(), "tmp");
 app.use(
     fileUpload({
         useTempFiles: true,
-        tempFileDir: path.join(projectRoot, "tmp"),
+        tempFileDir: tempDir,
         createParentPath: true,
         limits: { fileSize: 50 * 1024 * 1024 },
     })
