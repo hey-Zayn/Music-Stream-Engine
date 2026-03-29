@@ -58,6 +58,27 @@ app.use('/api/albums', require('./routes/album.route'));
 app.use('/api/playlists', require('./routes/playlist.route'));
 app.use('/api/stats', require('./routes/stats.route'));
 
+// 5. Health Check & Root
+app.get('/api/health', async (req, res) => {
+    const mongoose = require('mongoose');
+    const Song = require('./models/song.model');
+    const Redis = require('./lib/redis');
+
+    const health = {
+        status: 'UP',
+        timestamp: new Date(),
+        database: {
+            status: mongoose.connection.readyState === 1 ? 'CONNECTED' : 'DISCONNECTED',
+            songCount: await Song.countDocuments().catch(() => 0),
+        },
+        redis: {
+            status: Redis.isOpen ? 'CONNECTED' : 'DISCONNECTED'
+        },
+        environment: process.env.NODE_ENV
+    };
+    res.status(200).json(health);
+});
+
 app.get('/', (req, res) => res.send('API is running...'));
 
 // 5. Sentry Error Handler AFTER routes
@@ -90,10 +111,18 @@ app.use((err, req, res, next) => {
 
 // 7. Database & Server start
 const port = process.env.PORT || 5000;
-connectDB();
 
-httpServer.listen(port, () => {
-    Logger.info(`Server is running on port ${port}`);
-});
+const startServer = async () => {
+    try {
+        await connectDB();
+        httpServer.listen(port, () => {
+            Logger.info(`Server is running on port ${port}`);
+        });
+    } catch (err) {
+        Logger.error(`Server failed to start: ${err.message}`);
+    }
+};
+
+startServer();
 
 module.exports = app;

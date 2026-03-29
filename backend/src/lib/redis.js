@@ -1,7 +1,14 @@
 const { createClient } = require('redis');
 
 const redisClient = createClient({
-    url: process.env.REDIS_URL
+    url: process.env.REDIS_URL,
+    socket: {
+        connectTimeout: 5000,
+        reconnectStrategy: (retries) => {
+            if (retries > 3) return new Error('Retry limit exceeded');
+            return Math.min(retries * 50, 500);
+        }
+    }
 });
 
 redisClient.on('error', (err) => console.log('Redis Client Error', err));
