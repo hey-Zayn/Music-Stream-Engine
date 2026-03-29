@@ -110,6 +110,15 @@ export const useChatStore = create<chatStore>((set, get) => ({
       socket.on("receive_message", handleNewMessage);
       socket.on("message_sent", handleNewMessage);
 
+      socket.on("connect_error", (error) => {
+        console.error("Socket Connection Error:", error.message);
+        if (import.meta.env.MODE !== "development") {
+          // In production (Vercel), if socket fails, stop retrying and rely on polling
+          socket.disconnect();
+          set({ isConnected: false, socket: null });
+        }
+      });
+
       socket.on("activity_updated", ({ userId: id, activity }) => {
         set((state) => {
           const newActivities = new Map(state.userActivities);

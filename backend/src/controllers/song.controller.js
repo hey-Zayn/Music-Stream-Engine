@@ -6,6 +6,11 @@ const cloudinary = require("../lib/cloudinary");
 const CacheManager = require("../lib/cacheManager");
 
 const getRandomSongs = async (size) => {
+    const total = await Song.countDocuments();
+    if (total === 0) {
+        console.warn("getRandomSongs: No songs found in the database. Returning empty array.");
+        return [];
+    }
     return await Song.aggregate([
         { $sample: { size } },
         {
