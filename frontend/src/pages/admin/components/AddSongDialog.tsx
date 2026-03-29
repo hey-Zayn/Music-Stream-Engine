@@ -150,14 +150,16 @@ const AddSongDialog = () => {
 				return toast.error("Artist is required");
 			}
 
+			if (!newSong.album || newSong.album === "none") {
+				return toast.error("Please select an album");
+			}
+
 			const formData = new FormData();
 
 			formData.append("title", newSong.title);
 			formData.append("artist", newSong.artist);
 			formData.append("duration", newSong.duration);
-			if (newSong.album && newSong.album !== "none") {
-				formData.append("albumId", newSong.album);
-			}
+			formData.append("albumId", newSong.album);
 
 			formData.append("audioFile", files.audio);
 			formData.append("imageFile", files.image);
@@ -354,7 +356,7 @@ const AddSongDialog = () => {
 					</div>
 
 					<div className='space-y-2'>
-						<label className='text-sm font-medium'>Album (Optional)</label>
+						<label className='text-sm font-medium'>Album</label>
 						<Select
 							value={newSong.album}
 							onValueChange={(value) => setNewSong({ ...newSong, album: value })}
@@ -363,7 +365,6 @@ const AddSongDialog = () => {
 								<SelectValue placeholder='Select album' />
 							</SelectTrigger>
 							<SelectContent className='bg-zinc-800 border-zinc-700'>
-								<SelectItem value='none'>No Album (Single)</SelectItem>
 								{albums.map((album) => (
 									<SelectItem key={album._id} value={album._id}>
 										{album.title}

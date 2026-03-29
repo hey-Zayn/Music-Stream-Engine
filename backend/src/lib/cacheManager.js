@@ -31,14 +31,23 @@ const CacheManager = {
     },
 
     /**
-     * Purges keys using wildcards (Note: keys() is O(N), use sparingly)
+     * Purges keys using non-blocking SCAN (O(1) per step)
      */
     async purgePattern(pattern) {
         try {
-            const keys = await redisClient.keys(pattern);
-            if (keys.length > 0) {
-                await redisClient.del(keys);
-                console.log(`Purged ${keys.length} keys matching ${pattern}`);
+            let totalPurged = 0;
+            const iterator = await redisClient.scanIterator({
+                MATCH: pattern,
+                COUNT: 100
+            });
+
+            for await (const key of iterator) {
+                await redisClient.del(key);
+                totalPurged++;
+            }
+
+            if (totalPurged > 0) {
+                console.log(`Purged ${totalPurged} keys matching ${pattern}`);
             }
         } catch (err) {
             console.error(`Cache Purge Error [${pattern}]:`, err);
