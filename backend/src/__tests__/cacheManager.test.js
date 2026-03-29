@@ -47,15 +47,27 @@ describe('CacheManager', () => {
     });
 
     describe('purgePattern', () => {
-        it('should delete keys matching a pattern', async () => {
+        it('should delete keys matching a pattern using scanIterator', async () => {
             const mockKeys = ['key1', 'key2'];
-            const spyKeys = vi.spyOn(redisClient, 'keys').mockResolvedValue(mockKeys);
-            const spyDel = vi.spyOn(redisClient, 'del').mockResolvedValue(2);
+            
+            // Mocking the async iterator for scanIterator
+            const spyScan = vi.spyOn(redisClient, 'scanIterator').mockReturnValue((async function* () {
+                for (const key of mockKeys) {
+                    yield key;
+                }
+            })());
+
+            const spyDel = vi.spyOn(redisClient, 'del').mockResolvedValue(1);
 
             await CacheManager.purgePattern('pattern:*');
 
-            expect(spyKeys).toHaveBeenCalledWith('pattern:*');
-            expect(spyDel).toHaveBeenCalledWith(mockKeys);
+            expect(spyScan).toHaveBeenCalledWith({
+                MATCH: 'pattern:*',
+                COUNT: 100
+            });
+            expect(spyDel).toHaveBeenCalledTimes(2);
+            expect(spyDel).toHaveBeenCalledWith('key1');
+            expect(spyDel).toHaveBeenCalledWith('key2');
         });
     });
 });
