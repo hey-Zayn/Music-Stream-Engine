@@ -44,7 +44,7 @@ const getStats = async (req, res, next) => {
         res.status(200).json(stats);
 
     } catch (error) {
-
+        next(error);
     }
 }
 
