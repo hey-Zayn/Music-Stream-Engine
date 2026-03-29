@@ -46,8 +46,10 @@ export const useStatsStore = create<StatsStore>((set) => ({
         try {
             const response = await axiosInstance.get('/songs/featured');
             set({ featuredSongs: response.data.songs || response.data });
-        } catch {
-            set({ error: "Error fetching featured songs" });
+        } catch (error: unknown) {
+            const e = error as { message?: string };
+            set({ error: e?.message || "Error fetching featured songs" });
+            toast.error(e?.message || "Error fetching featured songs");
         } finally {
             set({ isLoading: false });
         }
@@ -58,8 +60,10 @@ export const useStatsStore = create<StatsStore>((set) => ({
         try {
             const response = await axiosInstance.get('/songs/made-for-you');
             set({ madeForYouSongs: response.data.songs || response.data });
-        } catch {
-            set({ error: "Error fetching made for you songs" });
+        } catch (error: unknown) {
+            const e = error as { message?: string };
+            set({ error: e?.message || "Error fetching made for you songs" });
+            toast.error(e?.message || "Error fetching made for you songs");
         } finally {
             set({ isLoading: false });
         }
@@ -70,8 +74,10 @@ export const useStatsStore = create<StatsStore>((set) => ({
         try {
             const response = await axiosInstance.get('/songs/trending');
             set({ trendingSongs: response.data.songs || response.data });
-        } catch {
-            set({ error: "Error fetching trending songs" });
+        } catch (error: unknown) {
+            const e = error as { message?: string };
+            set({ error: e?.message || "Error fetching trending songs" });
+            toast.error(e?.message || "Error fetching trending songs");
         } finally {
             set({ isLoading: false });
         }

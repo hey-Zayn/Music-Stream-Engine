@@ -14,11 +14,11 @@ const { requestIdMiddleware, httpLogger } = require("./middleware/morgan.middlew
 
 const app = express();
 
-// 1. CORS FIRST!
 app.use(cors({
     origin: [
         "http://localhost:3000",
-        "https://musicshoot.vercel.app"
+        "https://musicshoot.vercel.app",
+        "https://musicshoot.vercel.app/"
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
