@@ -138,6 +138,7 @@ const createSong = async (req, res, next) => {
         if (!title) return res.status(400).json({ success: false, message: "Title is required" });
         if (!artist) return res.status(400).json({ success: false, message: "Artist is required" });
         if (!duration) return res.status(400).json({ success: false, message: "Duration is required" });
+        if (!albumId || albumId === "none") return res.status(400).json({ success: false, message: "Album is required" });
 
         const audioUrl = await uploadToCloudinary(req.files.audioFile);
         const imageUrl = await uploadToCloudinary(req.files.imageFile);

@@ -42,9 +42,10 @@ const EditSongDialog = ({ song }: EditSongDialogProps) => {
 	const handleSubmit = async () => {
 		try {
 			const data = new FormData();
-			data.append("title", formData.title);
-			data.append("artist", formData.artist);
-			data.append("duration", formData.duration);
+			if (!formData.title.trim()) return toast.error("Title is required");
+			if (!formData.artist.trim()) return toast.error("Artist is required");
+			if (!formData.album || formData.album === "none") return toast.error("Album is required");
+
 			if (formData.album && formData.album !== "none") data.append("albumId", formData.album);
 			if (files.image) data.append("imageFile", files.image);
 
@@ -138,7 +139,7 @@ const EditSongDialog = ({ song }: EditSongDialogProps) => {
 					</div>
 
 					<div className='space-y-2'>
-						<label className='text-sm font-medium' htmlFor='album'>Album (Optional)</label>
+						<label className='text-sm font-medium' htmlFor='album'>Album</label>
 						<Select
 							value={formData.album}
 							onValueChange={(value) => setFormData({ ...formData, album: value })}
@@ -147,7 +148,6 @@ const EditSongDialog = ({ song }: EditSongDialogProps) => {
 								<SelectValue placeholder='Select album' />
 							</SelectTrigger>
 							<SelectContent className='bg-zinc-800 border-zinc-700'>
-								<SelectItem value='none'>No Album</SelectItem>
 								{albums.map((album) => (
 									<SelectItem key={album._id} value={album._id}>
 										{album.title}
